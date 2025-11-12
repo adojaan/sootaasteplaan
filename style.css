@@ -298,6 +298,27 @@ body {
   overflow: hidden;
 }
 
+.data-fallback-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translate(-50%, 20px);
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: #fff4d9;
+  color: #7a4c00;
+  font-weight: 600;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 2000;
+}
+
+.data-fallback-notice.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
 .modal[aria-hidden="false"] {
   display: flex;
 }

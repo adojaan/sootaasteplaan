@@ -1,5 +1,138 @@
 (() => {
   const DATA_URL = 'data.json';
+  const FALLBACK_DATA = {
+    elements: [
+      {
+        id: 'understand_context',
+        title: 'Understand Context',
+        subtitle: 'Gather background information',
+        info:
+          '<p>Engage with stakeholders and review the existing documentation to fully understand the current situation. Capture any constraints, assumptions, and desired outcomes.</p><ul><li>Interview subject matter experts</li><li>Review historical reports</li><li>List constraints and opportunities</li></ul>',
+        special: false
+      },
+      {
+        id: 'define_goal',
+        title: 'Define Goal',
+        subtitle: 'Clarify the target state',
+        info:
+          '<p>Translate stakeholder needs into a clear, measurable goal. Ensure everyone agrees on what success looks like.</p>',
+        special: false
+      },
+      {
+        id: 'map_process',
+        title: 'Map Process',
+        subtitle: 'Visualise the workflow',
+        info:
+          '<p>Create a step-by-step view of the current process. Identify inputs, outputs, decision points, and responsible roles.</p>',
+        special: false
+      },
+      {
+        id: 'identify_gaps',
+        title: 'Identify Gaps',
+        subtitle: 'Spot weaknesses and risks',
+        info:
+          '<p>Compare the current process with the desired outcome to find inefficiencies, bottlenecks, or missing capabilities.</p>',
+        special: false
+      },
+      {
+        id: 'prioritise_actions',
+        title: 'Prioritise Actions',
+        subtitle: 'Rank improvements',
+        info:
+          '<p>Evaluate the impact, effort, and urgency of each identified gap. Agree on the order in which actions should be taken.</p>',
+        special: false
+      },
+      {
+        id: 'design_solutions',
+        title: 'Design Solutions',
+        subtitle: 'Craft actionable changes',
+        info:
+          '<p>Co-create detailed solution options with the implementation team. Document requirements, dependencies, and expected benefits.</p>',
+        special: false
+      },
+      {
+        id: 'plan_implementation',
+        title: 'Plan Implementation',
+        subtitle: 'Prepare delivery roadmap',
+        info:
+          '<p>Break down the selected solution into tasks, allocate owners, and establish a realistic timeline with milestones.</p>',
+        special: false
+      },
+      {
+        id: 'execute_changes',
+        title: 'Execute Changes',
+        subtitle: 'Roll out improvements',
+        info:
+          '<p>Coordinate the delivery team to implement the plan. Track progress, remove blockers, and manage risks.</p>',
+        special: false
+      },
+      {
+        id: 'measure_results',
+        title: 'Measure Results',
+        subtitle: 'Evaluate outcomes',
+        info:
+          '<p>Assess the impact of the implemented changes using predefined metrics. Capture lessons learned to inform future initiatives.</p>',
+        special: false
+      },
+      {
+        id: 'communication',
+        title: 'Continuous Communication',
+        subtitle: 'Enable feedback loops',
+        info:
+          '<p><strong>Suhtlus</strong> happens throughout the entire initiative. Share updates, collect feedback, and ensure transparency between every pair of steps.</p><p>Drop this card onto the arrows to emphasise when communication is required. You can apply it to multiple arrows.</p>',
+        special: true
+      }
+    ],
+    correctOrders: [
+      [
+        'understand_context',
+        'define_goal',
+        'map_process',
+        'identify_gaps',
+        'prioritise_actions',
+        'design_solutions',
+        'plan_implementation',
+        'execute_changes',
+        'measure_results'
+      ]
+    ],
+    partialOrders: [
+      {
+        order: [
+          'understand_context',
+          'define_goal',
+          'map_process',
+          'prioritise_actions',
+          'identify_gaps',
+          'design_solutions',
+          'plan_implementation',
+          'execute_changes',
+          'measure_results'
+        ],
+        feedback:
+          'Check the middle of the process: identify the gaps before you prioritise what to do about them.'
+      },
+      {
+        order: [
+          'understand_context',
+          'define_goal',
+          'map_process',
+          'identify_gaps',
+          'prioritise_actions',
+          'plan_implementation',
+          'design_solutions',
+          'execute_changes',
+          'measure_results'
+        ],
+        feedback: 'Design the detailed solution before committing to the delivery plan.'
+      }
+    ],
+    feedback: {
+      correct: 'Correct! You have arranged all steps in the right order.',
+      partial: 'The order is partially correct. Some steps are out of place.',
+      incorrect: 'That order is not correct. Please try again.'
+    }
+  };
   const cardsContainer = document.getElementById('cards-container');
   const placeholderColumn = document.getElementById('placeholder-column');
   const confirmBtn = document.getElementById('confirm-btn');
@@ -122,13 +255,46 @@
         return response.json();
       })
       .then((data) => {
-        state.data = data;
-        createCards(data.elements);
-        resetInactivityTimer();
+        if (!data || !Array.isArray(data.elements)) {
+          throw new Error('data.json is missing the "elements" array');
+        }
+        handleDataLoaded(data, false);
       })
       .catch((error) => {
-        console.error(error);
+        console.warn('Falling back to bundled data after load failure.', error);
+        handleDataLoaded(structuredCloneSafe(FALLBACK_DATA), true);
       });
+  }
+
+  function structuredCloneSafe(value) {
+    if (typeof structuredClone === 'function') {
+      return structuredClone(value);
+    }
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function handleDataLoaded(data, usedFallback) {
+    state.data = data;
+    createCards(data.elements);
+    if (usedFallback) {
+      showDataFallbackNotice();
+    }
+    resetInactivityTimer();
+  }
+
+  function showDataFallbackNotice() {
+    if (document.getElementById('data-fallback-notice')) {
+      return;
+    }
+    const banner = document.createElement('div');
+    banner.id = 'data-fallback-notice';
+    banner.className = 'data-fallback-notice';
+    banner.textContent =
+      'Loaded built-in data because data.json could not be accessed. Ensure the files are served from a local web server for live data updates.';
+    document.body.appendChild(banner);
+    requestAnimationFrame(() => {
+      banner.classList.add('visible');
+    });
   }
 
   function createCards(elements) {
