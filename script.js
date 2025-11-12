@@ -276,25 +276,7 @@
   function handleDataLoaded(data, usedFallback) {
     state.data = data;
     createCards(data.elements);
-    if (usedFallback) {
-      showDataFallbackNotice();
-    }
     resetInactivityTimer();
-  }
-
-  function showDataFallbackNotice() {
-    if (document.getElementById('data-fallback-notice')) {
-      return;
-    }
-    const banner = document.createElement('div');
-    banner.id = 'data-fallback-notice';
-    banner.className = 'data-fallback-notice';
-    banner.textContent =
-      'Loaded built-in data because data.json could not be accessed. Ensure the files are served from a local web server for live data updates.';
-    document.body.appendChild(banner);
-    requestAnimationFrame(() => {
-      banner.classList.add('visible');
-    });
   }
 
   function createCards(elements) {
@@ -385,30 +367,35 @@
       return;
     }
 
-    card.setPointerCapture(event.pointerId);
+  // Attempt pointer capture; not critical if it fails.
+  try { card.setPointerCapture(event.pointerId); } catch (_) {}
 
     const originSlotIndex = card.dataset.slotIndex
       ? parseInt(card.dataset.slotIndex, 10)
       : null;
 
+    // Record start rect BEFORE any DOM mutation so we can anchor to the visual origin
+    const startRect = card.getBoundingClientRect();
+    const offsetX = event.clientX - startRect.left;
+    const offsetY = event.clientY - startRect.top;
+
     if (originSlotIndex !== null && !Number.isNaN(originSlotIndex)) {
+      // Remove from slot after measuring so the rect doesn't collapse to 0,0
       removeCardFromSlot(card, originSlotIndex);
     }
 
-    const containerRect = cardsContainer.getBoundingClientRect();
-    const cardRect = card.getBoundingClientRect();
-    const offsetX = event.clientX - cardRect.left;
-    const offsetY = event.clientY - cardRect.top;
-
-    if (!cardsContainer.contains(card)) {
-      cardsContainer.appendChild(card);
-    }
-
-    card.style.width = `${cardRect.width}px`;
-    card.style.height = `${cardRect.height}px`;
-    card.style.position = 'absolute';
-    card.style.left = `${cardRect.left - containerRect.left + cardsContainer.scrollLeft}px`;
-    card.style.top = `${cardRect.top - containerRect.top + cardsContainer.scrollTop}px`;
+    // Move card to body to ensure it's above everything, anchored at original pos
+    card.style.position = 'fixed';
+    card.style.left = `${startRect.left}px`;
+    card.style.top = `${startRect.top}px`;
+    card.style.margin = '0';
+    // Let it take natural size first, then lock it to avoid reflow during drag
+    card.style.width = '';
+    card.style.height = '';
+    document.body.appendChild(card);
+    const naturalRect = card.getBoundingClientRect();
+    card.style.width = `${naturalRect.width}px`;
+    card.style.height = `${naturalRect.height}px`;
 
     card.classList.add('dragging');
     card.style.pointerEvents = 'none';
@@ -422,7 +409,10 @@
       lastHoverArrow: null
     };
 
-    document.addEventListener('pointermove', handlePointerMove);
+  document.addEventListener('pointermove', handlePointerMove, true);
+  document.addEventListener('pointerup', handlePointerUp, true);
+  document.addEventListener('pointercancel', handlePointerCancel, true);
+  document.addEventListener('keydown', handleDragKeyDown, true);
   }
 
   function handlePointerMove(event) {
@@ -432,12 +422,8 @@
     const newLeft = event.clientX - offsetX;
     const newTop = event.clientY - offsetY;
 
-    const containerRect = cardsContainer.getBoundingClientRect();
-    const relativeLeft = newLeft - containerRect.left + cardsContainer.scrollLeft;
-    const relativeTop = newTop - containerRect.top + cardsContainer.scrollTop;
-
-    card.style.left = `${relativeLeft}px`;
-    card.style.top = `${relativeTop}px`;
+    card.style.left = `${newLeft}px`;
+    card.style.top = `${newTop}px`;
 
     highlightDropTarget(event.clientX, event.clientY, card);
 
@@ -445,27 +431,24 @@
   }
 
   function handlePointerUp(event) {
-    if (!state.drag) {
-      return;
-    }
-
+    if (!state.drag) return;
     const { card } = state.drag;
-
-    card.releasePointerCapture(event.pointerId);
-    document.removeEventListener('pointermove', handlePointerMove);
-
+    try { card.releasePointerCapture(event.pointerId); } catch (_) {}
+    document.removeEventListener('pointermove', handlePointerMove, true);
+    document.removeEventListener('pointerup', handlePointerUp, true);
+    document.removeEventListener('pointercancel', handlePointerCancel, true);
+    document.removeEventListener('keydown', handleDragKeyDown, true);
     finalizeDrop(event.clientX, event.clientY);
   }
 
   function handlePointerCancel(event) {
     if (!state.drag) return;
     const { card, originSlotIndex } = state.drag;
-    try {
-      card.releasePointerCapture(event.pointerId);
-    } catch (err) {
-      /* ignore */
-    }
-    document.removeEventListener('pointermove', handlePointerMove);
+    try { card.releasePointerCapture(event.pointerId); } catch (_) {}
+    document.removeEventListener('pointermove', handlePointerMove, true);
+    document.removeEventListener('pointerup', handlePointerUp, true);
+    document.removeEventListener('pointercancel', handlePointerCancel, true);
+    document.removeEventListener('keydown', handleDragKeyDown, true);
 
     card.classList.remove('dragging');
     card.style.pointerEvents = '';
@@ -482,28 +465,40 @@
     state.drag = null;
   }
 
+  function handleDragKeyDown(e) {
+    if (!state.drag) return;
+    if (e.key === 'Escape') {
+      // Synthesise a cancel
+      handlePointerCancel({ pointerId: 0 });
+    }
+  }
+
   function finalizeDrop(clientX, clientY) {
-    const { card, originSlotIndex, lastHoverSlot, lastHoverArrow } = state.drag;
+    const { card, originSlotIndex } = state.drag;
     const isSpecial = card.dataset.special === 'true';
 
+    // Determine target at the moment of drop
+    const path = document.elementsFromPoint(clientX, clientY);
+    const slotTarget = path.find((el) => el.classList && el.classList.contains('placeholder-slot'));
+    const arrowTarget = path.find((el) => el.classList && el.classList.contains('arrow-indicator'));
+    // Do NOT clear positioning yet; we need the fixed rect for accurate pool placement.
     card.classList.remove('dragging');
     card.style.pointerEvents = '';
-    card.style.width = '';
-    card.style.height = '';
 
     let dropped = false;
 
-    if (!isSpecial && lastHoverSlot) {
-      const targetIndex = parseInt(lastHoverSlot.dataset.index, 10);
+    if (!isSpecial && slotTarget) {
+      const targetIndex = parseInt(slotTarget.dataset.index, 10);
       if (Number.isInteger(targetIndex)) {
-        if (lastHoverSlot.dataset.cardId && originSlotIndex === null) {
-          // slot filled and card from pool -> revert to stored pool position
+        const slotFilled = Boolean(slotTarget.dataset.cardId);
+        if (slotFilled && originSlotIndex === null) {
+          // From pool to filled slot: disallow, snap back
           snapToPoolPosition(card);
           dropped = true;
-        } else if (lastHoverSlot.dataset.cardId && originSlotIndex !== null) {
-          const occupant = lastHoverSlot.querySelector('.card');
+        } else if (slotFilled && originSlotIndex !== null) {
+          const occupant = slotTarget.querySelector('.card');
           if (occupant) {
-            lastHoverSlot.removeChild(occupant);
+            slotTarget.removeChild(occupant);
             placeCardInSlot(card, targetIndex);
             placeCardInSlot(occupant, originSlotIndex);
             dropped = true;
@@ -513,14 +508,24 @@
           dropped = true;
         }
       }
-    } else if (isSpecial && lastHoverArrow) {
-      lastHoverArrow.classList.add('comm');
-      dropped = true;
+    } else if (isSpecial && arrowTarget && arrowTarget.classList.contains('active')) {
+      arrowTarget.classList.add('comm');
       snapToPoolPosition(card);
+      dropped = true;
     }
 
     if (!dropped) {
       storePoolPosition(card);
+    }
+
+    // After the card has been placed (slot or pool), any inline drag sizing can be cleared.
+    if (!card.dataset.slotIndex) {
+      // Card ended in pool (absolute) -> sizing already normalized in helpers.
+    } else {
+      // In slot: ensure no stale drag dimensions remain.
+      card.style.width = '';
+      card.style.height = '';
+      card.style.margin = '';
     }
 
     clearHoverHighlights();
@@ -620,16 +625,28 @@
     card.style.left = `${poolLeft}px`;
     card.style.top = `${poolTop}px`;
     card.style.position = 'absolute';
+    card.style.width = '';
+    card.style.height = '';
+    card.style.margin = '';
     card.dataset.slotIndex = '';
     cardsContainer.appendChild(card);
   }
 
   function storePoolPosition(card) {
-    const left = parseFloat(card.style.left || '0');
-    const top = parseFloat(card.style.top || '0');
-    card.dataset.poolLeft = Number.isNaN(left) ? '0' : String(left);
-    card.dataset.poolTop = Number.isNaN(top) ? '0' : String(top);
+    // Compute position relative to the pool container
+    const containerRect = cardsContainer.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const relLeft = cardRect.left - containerRect.left + cardsContainer.scrollLeft;
+    const relTop = cardRect.top - containerRect.top + cardsContainer.scrollTop;
+
+    card.dataset.poolLeft = String(Math.max(0, relLeft));
+    card.dataset.poolTop = String(Math.max(0, relTop));
     card.style.position = 'absolute';
+    card.style.left = `${relLeft}px`;
+    card.style.top = `${relTop}px`;
+    card.style.width = '';
+    card.style.height = '';
+    card.style.margin = '';
     card.dataset.slotIndex = '';
     cardsContainer.appendChild(card);
   }
