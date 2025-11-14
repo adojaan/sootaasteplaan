@@ -8,31 +8,31 @@
   </head>
   <body>
     <header class="top-bar">
-      <h1 class="game-title">Process Ordering Game</h1>
+      <h1 class="game-title">Soode taastamine</h1>
       <div class="top-actions">
-        <button id="confirm-btn" class="action-btn" disabled>Confirm Order</button>
-        <button id="reset-btn" class="action-btn">Reset</button>
+        <button id="confirm-btn" class="action-btn" disabled>Kinnita</button>
+        <button id="reset-btn" class="action-btn">Tagasi algusse</button>
       </div>
     </header>
     <div id="game-container">
       <div id="placeholder-column" aria-label="Ordered sequence slots">
-        <div class="placeholder-slot" data-index="0" aria-label="Step 1"></div>
+        <div class="placeholder-slot" data-index="0" aria-label="1. samm"></div>
         <div class="arrow-indicator" data-index="0" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="1" aria-label="Step 2"></div>
+        <div class="placeholder-slot" data-index="1" aria-label="2. samm"></div>
         <div class="arrow-indicator" data-index="1" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="2" aria-label="Step 3"></div>
+        <div class="placeholder-slot" data-index="2" aria-label="3. samm"></div>
         <div class="arrow-indicator" data-index="2" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="3" aria-label="Step 4"></div>
+        <div class="placeholder-slot" data-index="3" aria-label="4. samm"></div>
         <div class="arrow-indicator" data-index="3" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="4" aria-label="Step 5"></div>
+        <div class="placeholder-slot" data-index="4" aria-label="5. samm"></div>
         <div class="arrow-indicator" data-index="4" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="5" aria-label="Step 6"></div>
+        <div class="placeholder-slot" data-index="5" aria-label="6. samm"></div>
         <div class="arrow-indicator" data-index="5" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="6" aria-label="Step 7"></div>
+        <div class="placeholder-slot" data-index="6" aria-label="7. samm"></div>
         <div class="arrow-indicator" data-index="6" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="7" aria-label="Step 8"></div>
+        <div class="placeholder-slot" data-index="7" aria-label="8. samm"></div>
         <div class="arrow-indicator" data-index="7" aria-hidden="true"></div>
-        <div class="placeholder-slot" data-index="8" aria-label="Step 9"></div>
+        <div class="placeholder-slot" data-index="8" aria-label="9. samm"></div>
   </div>
   <div id="cards-container" aria-label="Available steps"></div>
   </div>
@@ -50,44 +50,44 @@
 
     <div id="confirm-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="modal-content">
-        <h2>All steps are placed</h2>
-        <p>Confirm the order?</p>
+        <h2>Kõik sammud on paigutatud</h2>
+        <p>Kinnita järjekord?</p>
         <div class="modal-actions">
-          <button id="confirm-order" class="primary">Confirm</button>
-          <button class="secondary" data-close="confirm-modal">Cancel</button>
+          <button id="confirm-order" class="primary">Kinnita</button>
+          <button class="secondary" data-close="confirm-modal">Tühista</button>
         </div>
       </div>
     </div>
 
     <div id="feedback-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="modal-content">
-        <h2 id="feedback-title">Results</h2>
+        <h2 id="feedback-title">Tulemused</h2>
         <p id="feedback-message"></p>
         <div class="modal-actions">
-          <button class="secondary" data-close="feedback-modal">Close</button>
-          <button id="feedback-restart" class="primary">Restart</button>
+          <button class="secondary" data-close="feedback-modal">Sule</button>
+          <button id="feedback-restart" class="primary">Alusta uuesti</button>
         </div>
       </div>
     </div>
 
     <div id="inactivity-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="modal-content">
-        <h2>Still there?</h2>
-        <p>Do you wish to continue or start over?</p>
+        <h2>Kas oled veel siin?</h2>
+        <p>Kas soovid jätkata või uuesti alustada?</p>
         <div class="modal-actions">
-          <button id="inactivity-continue" class="primary">Continue</button>
-          <button id="inactivity-reset" class="secondary">Start Over</button>
+          <button id="inactivity-continue" class="primary">Jätka</button>
+          <button id="inactivity-reset" class="secondary">Alusta uuesti</button>
         </div>
       </div>
     </div>
 
     <div id="reset-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="modal-content">
-        <h2>Reset game?</h2>
-        <p>Are you sure you want to start over?</p>
+        <h2>Alusta uuesti?</h2>
+        <p>Kas oled kindel, et soovid uuesti alustada?</p>
         <div class="modal-actions">
-          <button id="reset-confirm" class="primary">Yes</button>
-          <button class="secondary" data-close="reset-modal">No</button>
+          <button id="reset-confirm" class="primary">Jah</button>
+          <button class="secondary" data-close="reset-modal">Ei</button>
         </div>
       </div>
     </div>

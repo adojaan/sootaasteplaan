@@ -1,0 +1,136 @@
+export const gameData = {
+  "elements": [
+    {
+      "id": "tahame_taastada",
+      "title": "Tahame soo taastada",
+      "subtitle": "Oleme veendunud, et kodulähedane soo tuleks taastada",
+      "info": "<p>Enne, kui turbaalal saab teha taastamistöid soo taastumiseks, on vaja uurida, planeerida, rääkida ja arutada, et tegemistest soos oleks võimalikult palju kasu ja võimalikult vähe tüli.</p><p>Osa inimesi on ilmselt taastamistööde mõtte poolt, osad on vastu ja osadel on ükskõik. Nõnda on taastamisel vaja arvestada nii kirjutatud kui ka kirjutamata reeglitega.</p><p>Kui olete külaelanikega otsustanud soo taastamismõtetega edasi liikuda, tuleks luua näiteks mittetulundusühing või pöörduda mõne teise sobiva ühingu poole, kes saaks teid aidata või esindada.</p>",
+      "special": false
+    },
+    {
+      "id": "kes_on_omanik",
+      "title": "Kes on soo omanik?",
+      "subtitle": "Kui tegemist pole teist kellegi eramaaga, on vajalik välja selgitada, kes on kuivendatud sooala omanik",
+      "info": "<p>Üldiselt kuuluvad Eestis suuremad sooalad riigile. Sellisel juhul vastutab nende hooldamise ja kasutamise eest Riigimetsa Majandamise Keskus (RMK). Kui maa asub kaitsealal, tuleb kindlasti suhelda ka Keskkonnaametiga, kes on kaitseala valitseja. Kui aga tegemist on eramaaga, tuleb rääkida otse maaomanikuga. Vahel võib juhtuda, et maad kasutab rentnik (näiteks turbakaevanduse firma), sel juhul tuleb rääkida nii omaniku kui ka kasutajaga ehk rentnikuga.</p>",
+      "special": false
+    },
+    {
+      "id": "mis_on_lugu",
+      "title": "Mis on selle soo lugu?",
+      "subtitle": "Uurige vanu kaarte, pilte ja lugusid, et teada saada, milline oli kodulähedane sooala vanasti",
+      "info": "<p>Selleks, et mõista, mis toimub maastikul praegu, on vajalik tunda selle koha ajalugu. Aastakümnete jooksul on inimesed muutnud maastikke väga palju. Kaevatud on kraave, rajatud teid ja hooneid. Neid muutusi ei saa eirata, sest vahepeal toimunu on mõjutanud nii taimestikku, loomastikku, aga ka inimeste harjumusi ja ootusi.</p><p>Vastused tuleks leida sellistele küsimustele nagu:</p><ul><li>Millal ja kuhu kaevati kraavid?</li><li>Kus oli enne kuivenduskraave lage ala ja kus kasvasid puud?</li><li>Kus asusid taliteed või vanad rajad?</li><li>Kas ja kui jah, siis kus asuvad selles soos inimeste jaoks mingid olulised kohad (nt marjakohad, pelgupaigad vms)?</li></ul>",
+      "special": false
+    },
+    {
+      "id": "palju_raha",
+      "title": "Palju on vaja raha?",
+      "subtitle": "Koostage eelarve ja leidke taastamistööde jaoks rahastus",
+      "info": "<p>Kui maaomanikult on taastamisplaanidele esialgne nõusolek olemas, saab liikuda edasi järgmise sammuga – otsida taastamistööde jaoks rahastust. Kõige kallimad on projekteerimis- ja ehitustööd soos, mis maksavad 100-1000 eurot hektari kohta, aga raha kulub ka uuringutele.</p><p>Tänapäeval toimub enamik soode taastamistöid projektipõhiselt, mis tähendab, et tuleb järgida kindlaid rahastusreegleid ja kinni pidada tähtaegadest.</p>",
+      "special": false
+    },
+    {
+      "id": "milline_praegu",
+      "title": "Milline on ala praegu ja mis on plaan?",
+      "subtitle": "Tellige esmased uuringud taastatava ala kohta, mille põhjal valmib taastamiskava",
+      "info": "<p>Sageli küsitakse, kui kaugest ajast pärinevat maastikuilmet soovitakse taastada. Eesmärk ei olegi \"aega tagasi pöörata\". Taastamise lähtekohaks võetakse see, milline oli maastik vahetult enne inimesepoolset intensiivset sekkumist. Üldiselt peetakse silmas perioodi enne suuremahulisi kuivendustöid, mis Eestis toimusid alates 20. sajandi keskpaigast. Pärast seda muutus soomaastik kiiresti: kraave rajati palju ja sügavaid, mis mõjutas veetaset ja muutis sookooslused tundmatuseni.</p><p>Taastamise eesmärk on luua tingimused, et saaks taastuda looduslik soo. Selleks on vaja teha mitmeid eeluuringuid ja välitöid (nt käiakse läbi kõik kraavid, loendatakse liike, mõõdetakse veetaset, hinnatakse kooslusi tervikuna), mille tulemusena valmib esialgne taastamiskava.</p>",
+      "special": false
+    },
+    {
+      "id": "suhtlus",
+      "title": "Pidev suhtlus",
+      "subtitle": "Tehke koostööd ja suhelge huvigruppidega",
+      "info": "<p><strong>Suhtlus</strong> toimub kogu taastamise protsessi jooksul. Otsuse, kas üldse taastada või mitte, peaks üldjuhul tegema maaomanik. Samas taastamistööde läbiviimise juures tuleb arvestada paljude huvigruppide esindajate kogemuse, teadmiste ning arvamusega. Inimeste kaasamiseks on palju erinevaid viise - alates küsitlusuuringutest, üks-ühele vestluste ja matkadeni, õppepäevadest talguteni, seminaridest veebihääletusteni.</p><p>Isegi kui kõik ei ole taastamise poolt, aitab rääkimine välja selgitada olulisi aspekte, näiteks millised kraavid, teed, kohad maastikul on inimestele eriliselt olulised ja mille kasutusmugavus peaks säilima.</p><p>Pane see kaart noolte peale, et rõhutada, milliste sammude vahel on suhtlus eriti oluline. Saad seda rakendada mitme noole puhul.</p>",
+      "special": true
+    },
+    {
+      "id": "arvuti_mudel",
+      "title": "Kuidas võiks soo taastuda arvutis?",
+      "subtitle": "Laske modelleerida, kuidas peaks vesi taastamisalal liikuma",
+      "info": "<p>Tähtis on, et taastamisplaanid arvestaksid looduse ja inimeste vajadustega – ja seda saab arvutis vähemalt vee osas turvaliselt läbi mängida. Kõrgusmudelite abil saab näidata erinevate lahenduste mõju vee liikumisele ning plaanida taastamistööd võimalikult suure kasu ja väikese kahjuga. Lisaks kraavide täielikule sulgemisele saab ette näha ka veevoolu aeglustavaid lahendusi nagu ülevoolupaisud või sänge looduslikumaks kujundavaid voolusuunajad kraavisängis.</p><p>Soo taastumiseks on parim veetase sutike alla maapinna ja sõltub sootüübist - lagesoodes on veetase kõrgemal kui soometsades. Väikesed veekogud võivad tekkida suletud kraavide ümbruses ja muudes suhteliselt madalamates kohtades.</p>",
+      "special": false
+    },
+    {
+      "id": "ehitusprojekt",
+      "title": "Kuidas ehitada paise?",
+      "subtitle": "Taastamiskava põhjal tellige töödele ehitusprojekt",
+      "info": "<p>Kui peale pikemaid või lühemaid aruteluringe on taastamiskava valmis, teeb inseneribüroo omapoolsed uuringud ja koostab ehitusprojekti, kus on kirjas, kuidas peavad paisud olema ehitatud. Samuti on vaja nuputada, kuidas ja kuhu pääseb ligi kopaga, aga kuhu vaid jalgsi - neid paise ei saa rajada masinate abil, vaid näiteks talgute korras käsitsi. Kui ehitusprojekt on valmis, tuleb see uuesti kooskõlastada erinevate osapooltega ja välja kuulutada taastamistööde hange.</p>",
+      "special": false
+    },
+    {
+      "id": "teoks_tegemine",
+      "title": "Kuidas teha plaanid teoks?",
+      "subtitle": "Taastamistööde tegemine maastikul",
+      "info": "<p>Põhiline taastamistegevus Eesti soodes on paisude rajamine kuivenduskraavidele, mida üldjuhul teevad sobivat tehnikat ja oskusi omavad firmad. Väiksemaid töid saab teha ka talgutena. Et masinad pääseksid õigetesse kohtadesse ligi, rajatakse neile liikumisteid e trasse, mille käigus võetakse maha nii vähe puid, kui võimalik.</p><p>Paisu ehitamine näeb üldiselt välja nagu hambaaugu parandus - esmalt puhastatakse kraavi põhi ja küljed mudast, taimedest ja nende juurtest ning ehitatakse ajutine veetõke, et paisu tegemise koht oleks ehitamise ajal korraks kuiv. Seejärel võtab kopp mitme meetri kauguselt turvast ning asetab kraavi põhja kuni pais on soovitud kõrgusega. Selleks, et vesi kraavi süvendist ümbritsevale maapinnale valgukspaisu ära ei viiks, tehakse paisule kraavi pervele tiivad - kraavile oleks justkui pandud plaaster. Kõige lõpus kaetakse pais mätastega.</p>",
+      "special": false
+    },
+    {
+      "id": "jarelevalve",
+      "title": "Mis saab edasi?",
+      "subtitle": "Järgnevate aastate jooksul jälgige, kuidas soo hakkab taastuma",
+      "info": "<p>Mõne aasta jooksul kaovad maastikul taastamistööde jäljed ning ala võtab tasapisi soisema ilme. Uurimistööde käigus hinnatakse, kas soole iseloomulikud liigid on hakanud tagasi tulema, kuidas veetase aasta lõikes ühtlustub, kas vanadel turbakaevandusaladel kattub pinnas sootaimestikuga jpm.</p><p>Väike osa kuivendamise järgselt kasvama hakanud puudest võivad hukkuda, kuid toiteainete olemasolul tulevad asemele uued, kelle juurestik on kohanenud kõrge veetasemega. Osa metsa jääbki hõredam või tekivad ka lagedamad alad. Surnud puud pakuvad elupaika uutele liikidele, kes vajavadki lagupuitu. Ühtlasi väheneb üleujutuste oht, kuna soo hoiab ka sadudest tingitud liigvett paremini kinni. Tulekahju korral ei levi tuli märjas turbapinnases nii hõlpsasti. Taastuvat sood ja tema väärtusi saab näidata külalistele ja käia loomulikult nautimas eelkõige ise.</p>",
+      "special": false
+    }
+  ],
+  "correctOrders": [
+    [
+      "tahame_taastada",
+      "kes_on_omanik",
+      "mis_on_lugu",
+      "palju_raha",
+      "milline_praegu",
+      "arvuti_mudel",
+      "ehitusprojekt",
+      "teoks_tegemine",
+      "jarelevalve"
+    ]
+  ],
+  "partialOrders": [
+    {
+      "order": [
+        "tahame_taastada",
+        "kes_on_omanik",
+        "palju_raha",
+        "mis_on_lugu",
+        "milline_praegu",
+        "arvuti_mudel",
+        "ehitusprojekt",
+        "teoks_tegemine",
+        "jarelevalve"
+      ],
+      "feedback": "Kontrolli protsessi algust: enne rahastuse leidmist tuleks uurida soo ajalugu ja tausta."
+    },
+    {
+      "order": [
+        "tahame_taastada",
+        "kes_on_omanik",
+        "mis_on_lugu",
+        "palju_raha",
+        "milline_praegu",
+        "ehitusprojekt",
+        "arvuti_mudel",
+        "teoks_tegemine",
+        "jarelevalve"
+      ],
+      "feedback": "Arvutimudel peaks tulema enne ehitusprojekti koostamist, et planeerida parimaid lahendusi."
+    },
+    {
+      "order": [
+        "tahame_taastada",
+        "kes_on_omanik",
+        "mis_on_lugu",
+        "milline_praegu",
+        "palju_raha",
+        "arvuti_mudel",
+        "ehitusprojekt",
+        "teoks_tegemine",
+        "jarelevalve"
+      ],
+      "feedback": "Rahastust tuleks otsida enne uuringute tellimist, et olla kindel, et projektil on rahalist tuge."
+    }
+  ],
+  "feedback": {
+    "correct": "Õige! Oled kõik sammud paigutanud õigesse järjekorda.",
+    "partial": "Järjekord on osaliselt õige. Mõned sammud on veel valesti.",
+    "incorrect": "See järjekord ei ole õige. Palun proovi uuesti."
+  }
+};
