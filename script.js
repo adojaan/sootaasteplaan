@@ -154,7 +154,8 @@
     inactivityTimer: null,
     inactivityGraceTimer: null,
     inactivityModalOpen: false,
-    previouslyComplete: false
+    previouslyComplete: false,
+    hasInteracted: false
   };
 
   const infoModal = document.getElementById('info-modal');
@@ -368,8 +369,10 @@
       return;
     }
 
-    event.preventDefault();
-    registerActivity();
+  event.preventDefault();
+  // Mark that the user has interacted with the game
+  state.hasInteracted = true;
+  registerActivity();
 
     if (isAnyModalOpen()) {
       return;
@@ -563,6 +566,7 @@
       }
     } else if (isSpecial && arrowTarget && arrowTarget.classList.contains('active')) {
       arrowTarget.classList.add('comm');
+      state.hasInteracted = true;
       snapToPoolPosition(card);
       dropped = true;
     }
@@ -652,6 +656,8 @@
     card.style.pointerEvents = '';
 
     slot.appendChild(card);
+    state.hasInteracted = true;
+    resetInactivityTimer();
     updateArrows();
   }
 
@@ -872,6 +878,7 @@
 
     confirmBtn.disabled = true;
     state.previouslyComplete = false;
+    state.hasInteracted = false;
     registerActivity();
   }
 
@@ -882,6 +889,10 @@
   function resetInactivityTimer() {
     clearTimeout(state.inactivityTimer);
     if (state.inactivityModalOpen) return;
+    // Do not schedule inactivity prompts until the user has interacted
+    if (!state.hasInteracted) {
+      return;
+    }
     state.inactivityTimer = setTimeout(() => {
       showInactivityModal();
     }, 60000);
@@ -889,6 +900,10 @@
 
   function showInactivityModal() {
     state.inactivityTimer = null;
+    // If no interactions have happened since start/reset, do not show or auto-reset
+    if (!state.hasInteracted) {
+      return;
+    }
     openModal(inactivityModal);
     state.inactivityGraceTimer = setTimeout(() => {
       closeModal(inactivityModal);

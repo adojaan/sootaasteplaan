@@ -257,13 +257,29 @@ body {
   transform: scale(1.1);
 }
 
+/* Special card styled as a block arrow pointing downward */
 .card.special {
-  border: 2px solid var(--accent);
-  background: #fff7e6;
+  border: none; /* we draw our own dashed outline in the SVG */
+  background: transparent;
+  color: var(--accent); /* used by SVG as currentColor for stroke */
+  /* Inline SVG draws a rectangle with a narrow stem and a triangle head */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M-20 5 H120 V70 H60 V85 H66 L50 100 L34 85 H40 V70 H-20 Z' fill='rgba(255,183,77,0.15)' stroke='rgba(255,183,77,1)' stroke-width='1' stroke-dasharray='3,3' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  box-shadow: none;
+  background-size: 100% 100%;
+  /* keep text clear of the arrow stem/head */
+  padding-bottom: 3.6rem;
+}
+
+/* Ensure text stays readable within clipped shape */
+.card.special .card-title,
+.card.special .card-subtitle {
+  position: relative;
+  z-index: 1;
 }
 
 .placeholder-slot .card {
-  position: static;
+  position: relative;
   width: 100%;
   min-height: auto;
   box-shadow: none;
@@ -273,12 +289,19 @@ body {
   padding: 0.75rem 1rem;
 }
 
+/* Avoid double border effect on focused cards inside slots */
+.placeholder-slot .card:focus,
+.placeholder-slot .card:focus-visible,
+.placeholder-slot .card:active {
+  outline: none;
+}
+
 .placeholder-slot .card .card-subtitle {
   display: none;
 }
 
 .placeholder-slot .card .info-icon {
-  display: none;
+  display: block;
 }
 
 .placeholder-slot .card:hover {
