@@ -261,9 +261,10 @@ body {
 .card.special {
   border: none; /* we draw our own dashed outline in the SVG */
   background: transparent;
+  border-radius: 0;
   color: var(--accent); /* used by SVG as currentColor for stroke */
   /* Inline SVG draws a rectangle with a narrow stem and a triangle head */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M-20 5 H120 V70 H60 V85 H66 L50 100 L34 85 H40 V70 H-20 Z' fill='rgba(255,183,77,0.15)' stroke='rgba(255,183,77,1)' stroke-width='1' stroke-dasharray='3,3' stroke-linejoin='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-41 -15 182 115'><path d='M-33 -15 H133 A8 8 0 0 1 141 -7 V62 A8 8 0 0 1 133 70 H60 V85 H66 L50 100 L34 85 H40 V70 H-33 A8 8 0 0 1 -41 62 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(255,183,77,0.15)' stroke='rgba(255,183,77,1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
   box-shadow: none;
   background-size: 100% 100%;
