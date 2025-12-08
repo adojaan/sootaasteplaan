@@ -32,6 +32,14 @@ body {
   flex-direction: column;
 }
 
+.wbackground { 
+  background-color: #ffb74d;
+  background-image: url("assets/images/bg3.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background
+}
+
 #game-container {
   display: flex;
   flex-direction: row;
@@ -42,6 +50,8 @@ body {
   width: 100vw;
   overflow: hidden;
   flex: 1;
+  background-image: url("assets/images/bg3.jpg");
+  background-size: 100%, auto;
 }
 
 #placeholder-column {
@@ -54,7 +64,8 @@ body {
   max-width: 25%;
   height: 100%;
   padding: 24px 12px 24px 24px;
-  background: var(--bg);
+  /* background: var(--bg); */
+  background-color: rgba(244,246,251, 0.75);
   border-right: 2px solid var(--border-color);
   z-index: 0;
   isolation: isolate;
@@ -67,7 +78,8 @@ body {
   flex: 1;
   width: 75%;
   height: 100%;
-  background: var(--bg);
+  /* background: var(--bg); */
+   background-color: rgba(244,246,251, 0.5);
   isolation: isolate;
   z-index: 1;
   overflow: hidden;
@@ -166,8 +178,8 @@ body {
   content: "";
   display: block;
   width: 4px;
-  height: 22px;
-  background: var(--border-color);
+  height: 18px;
+  background: var(--primary);
   margin: 0 auto;
   border-radius: 999px;
   transition: background 0.3s ease;
@@ -180,7 +192,7 @@ body {
   height: 0;
   border-left: 9px solid transparent;
   border-right: 9px solid transparent;
-  border-top: 12px solid var(--border-color);
+  border-top: 12px solid var(--primary);
   margin: 2px auto 0 auto;
   transition: border-top-color 0.3s ease;
 }
@@ -257,6 +269,14 @@ body {
   transform: scale(1.1);
 }
 
+img.modalimg {
+  border: 0px;
+  float: right;
+  max-width: 40%;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 /* Special card styled as a block arrow pointing downward */
 .card.special {
   border: none; /* we draw our own dashed outline in the SVG */
@@ -264,7 +284,7 @@ body {
   border-radius: 0;
   color: var(--accent); /* used by SVG as currentColor for stroke */
   /* Inline SVG draws a rectangle with a narrow stem and a triangle head */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-41 -15 182 115'><path d='M-33 -15 H133 A8 8 0 0 1 141 -7 V62 A8 8 0 0 1 133 70 H60 V85 H66 L50 100 L34 85 H40 V70 H-33 A8 8 0 0 1 -41 62 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(255,183,77,0.15)' stroke='rgba(255,183,77,1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-41 -15 182 115'><path d='M-33 -15 H133 A8 8 0 0 1 141 -7 V62 A8 8 0 0 1 133 70 H60 V85 H66 L50 100 L34 85 H40 V70 H-33 A8 8 0 0 1 -41 62 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(255,183,77,0.25)' stroke='rgba(255,183,77,1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
   box-shadow: none;
   background-size: 100% 100%;
@@ -333,8 +353,9 @@ body {
   background: #ffffff;
   border-radius: 24px;
   padding: 2rem;
-  max-width: 540px;
-  width: min(90vw, 560px);
+  /* max-width: 540px; */
+  max-width: 80%;
+  /* width: min(90vw, 560px); */
   max-height: min(80vh, 700px);
   overflow-y: auto;
   text-align: center;
@@ -441,7 +462,7 @@ body {
 
 @media (max-width: 1100px) {
   #game-container {
-    flex-direction: column;
+    flex-direction: column-reverse;
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -496,5 +517,44 @@ body {
   .card {
     width: 160px;
     padding: 1rem;
+  }
+}
+
+/* Extra wide screens (4K and above) */
+@media (min-width: 1921px) {
+  .modal-content {
+    max-width: 1100px;
+  }
+}
+
+/* Portrait mode adjustments */
+@media (orientation: portrait) {
+  #game-container {
+    background-size: auto 100%;
+    background-position: center;
+  }
+
+  .modal-content {
+    max-width: 92%;
+    max-height: 88vh;
+    padding: 1.5rem;
+  }
+
+  img.modalimg {
+    float: none;
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    margin: 1rem 0 0 0;
+  }
+
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Move image to end of content in portrait */
+  .modal-body img.modalimg {
+    order: 1;
   }
 }
