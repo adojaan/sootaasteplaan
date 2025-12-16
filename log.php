@@ -61,21 +61,32 @@ $slotIdsStr = implode(';', $slotIds);
 // Log file path (same directory as script)
 $logFile = __DIR__ . '/game_logs.csv';
 
-// Check if directory is writable
-if (!is_writable(__DIR__)) {
+// Check if file exists - it must be pre-created with proper permissions
+// Run: touch game_logs.csv && chmod 666 game_logs.csv
+if (!file_exists($logFile)) {
+    // Try to create it
+    if (@file_put_contents($logFile, '') === false) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Log file does not exist and cannot be created. Run: touch game_logs.csv && chmod 666 game_logs.csv']);
+        exit;
+    }
+}
+
+// Check if file is writable
+if (!is_writable($logFile)) {
     http_response_code(500);
-    echo json_encode(['error' => 'Directory not writable', 'dir' => __DIR__]);
+    echo json_encode(['error' => 'Log file not writable. Run: chmod 666 game_logs.csv']);
     exit;
 }
 
-// Create header if file doesn't exist
-$writeHeader = !file_exists($logFile);
+// Create header if file is empty
+$writeHeader = filesize($logFile) === 0;
 
 // Open file for appending
 $fp = @fopen($logFile, 'a');
 if (!$fp) {
     http_response_code(500);
-    echo json_encode(['error' => 'Could not open log file', 'file' => $logFile, 'exists' => file_exists($logFile), 'writable' => is_writable($logFile)]);
+    echo json_encode(['error' => 'Could not open log file']);
     exit;
 }
 
