@@ -1,1 +1,0 @@
-* background image different if landscape or portrait

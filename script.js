@@ -1,145 +1,139 @@
 (() => {
+  // ============ LOGGING CONFIGURATION ============
+  const loggingConfig = {
+    enabled: true,  // Set to false to disable logging
+    endpoint: 'https://your-server.com/log.php'  // URL of your PHP logging script
+  };
+  // ================================================
+
   const gameData = {
   "elements": [
     {
       "id": "tahame_taastada",
-      "title": "Tahame soo taastada",
-      "subtitle": "Oleme veendunud, et kodulähedane soo tuleks taastada",
-      "info": "<img align='right' src='assets/images/1v1.jpg' class='modalimg'><p>Enne, kui turbaalal saab teha taastamistöid soo taastumiseks, on vaja uurida, planeerida, rääkida ja arutada, et tegemistest soos oleks võimalikult palju kasu ja võimalikult vähe tüli.</p><p>Osa inimesi on ilmselt taastamistööde mõtte poolt, osad on vastu ja osadel on ükskõik. Nõnda on taastamisel vaja arvestada nii kirjutatud kui ka kirjutamata reeglitega.</p><p>Kui olete külaelanikega otsustanud soo taastamismõtetega edasi liikuda, tuleks luua näiteks mittetulundusühing või pöörduda mõne teise sobiva ühingu poole, kes saaks teid aidata või esindada.</p>",
-      "special": false
+      "title": "Tahaks soo taastada",
+      "subtitle": "Kohalikud inimesed on üldiselt nõus, et kodulähedane soo tuleks taastada.",
+      "info": "<img align='right' src='assets/images/1v1.jpg' class='modalimg'><p>Enne, kui turbaalal saab teha töid soo taastumiseks, on vaja uurida, planeerida, rääkida ja arutada, kuidas taastamistöödest oleks võimalikult palju kasu ja võimalikult vähe tüli.</p><p>Osa inimesi on ilmselt taastamistööde mõtte poolt, osa on vastu ja osal on ükskõik. Nõnda on taastamisel vaja arvestada nii kirjutatud kui ka kirjutamata reeglitega.</p><p>Kui külaelanikud on otsustanud taastamismõtetega edasi liikuda, tuleks luua näiteks mittetulundusühing või pöörduda mõne teise asutuse poole, kes saaks kogukonda aidata või esindada.</p>",
+      "special": false,
+      "autoComm": true
     },
     {
       "id": "kes_on_omanik",
-      "title": "Kes on soo omanik?",
-      "subtitle": "Kui tegemist pole teist kellegi eramaaga, on vajalik välja selgitada, kes on kuivendatud sooala omanik",
-      "info": "<img align='right' src='assets/images/2v1.jpg' class='modalimg'><p>Üldiselt kuuluvad Eestis suuremad sooalad riigile. Sellisel juhul vastutab nende hooldamise ja kasutamise eest Riigimetsa Majandamise Keskus (RMK). Kui maa asub kaitsealal, tuleb kindlasti suhelda ka Keskkonnaametiga, kes on kaitseala valitseja. Kui aga tegemist on eramaaga, tuleb rääkida otse maaomanikuga. Vahel võib juhtuda, et maad kasutab rentnik (näiteks turbakaevanduse firma), sel juhul tuleb rääkida nii omaniku kui ka kasutajaga ehk rentnikuga.</p>",
-      "special": false
+      "title": "Kes on omanik?",
+      "subtitle": "Enne tegevustega alustamist on vaja selgitada, kes on kuivendatud sooala omanik(ud).",
+      "info": "<img align='right' src='assets/images/2v1.jpg' class='modalimg'><p>Üldiselt kuuluvad Eestis suuremad sooalad riigile. Sellisel juhul vastutab nende hooldamise ja kasutamise eest Riigimetsa Majandamise Keskus (RMK). Kui maa asub kaitsealal, tuleb kindlasti suhelda ka Keskkonnaametiga, kes on kaitseala valitseja. Kui aga tegemist on eramaaga, tuleb rääkida maaomanikuga. Vahel võib juhtuda, et maad kasutab rentnik (näiteks turbakaevanduse ettevõte) - sel juhul tuleb rääkida nii omaniku kui ka kasutajaga ehk rentnikuga.</p>",
+      "special": false,
+      "autoComm": true
     },
     {
       "id": "mis_on_lugu",
-      "title": "Mis on selle soo lugu?",
-      "subtitle": "Uurige vanu kaarte, pilte ja lugusid, et teada saada, milline oli kodulähedane sooala vanasti",
-      "info": "<img align='right' src='assets/images/3v1.jpg' class='modalimg'><p>Selleks, et mõista, mis toimub maastikul praegu, on vajalik tunda selle koha ajalugu. Aastakümnete jooksul on inimesed muutnud maastikke väga palju. Kaevatud on kraave, rajatud teid ja hooneid. Neid muutusi ei saa eirata, sest vahepeal toimunu on mõjutanud nii taimestikku, loomastikku, aga ka inimeste harjumusi ja ootusi.</p><p>Vastused tuleks leida sellistele küsimustele nagu:</p><ul><li>Millal ja kuhu kaevati kraavid?</li><li>Kus oli enne kuivenduskraave lage ala ja kus kasvasid puud?</li><li>Kus asusid taliteed või vanad rajad?</li><li>Kas ja kui jah, siis kus asuvad selles soos inimeste jaoks mingid olulised kohad (nt marjakohad, pelgupaigad vms)?</li></ul>",
+      "title": "Milline on ajalugu?",
+      "subtitle": "Uurige vanu kaarte, pilte ja lugusid, et teada saada, milline oli kodulähedane sooala vanasti.",
+      "info": "<img align='right' src='assets/images/3v1.jpg' class='modalimg'><p>Selleks, et paremini mõista, mis toimub maastikul praegu, on hea tunda selle koha ajalugu. Aastakümnete jooksul on inimesed muutnud maastikke väga palju. Kaevatud on kraave, rajatud teid ja hooneid. Neid muutusi ei saa eirata, sest vahepeal toimunu on mõjutanud nii taimestikku, loomastikku kui ka inimeste harjumusi ja ootusi. Soo lugu aitavad kokku panna vastused nendele küsimustele:</p><ul><li>millal ja kuhu kaevati kraavid?</li><li>kus oli enne kuivenduskraave lage ala ja kus kasvasid puud?</li><li>kus asusid taliteed või vanad rajad?</li><li>kas ja kui jah, siis kus asuvad selles soos inimeste jaoks olulised kohad (nt marjakohad, pelgupaigad)?</li></ul>",
       "special": false
     },
     {
       "id": "palju_raha",
-      "title": "Palju on vaja raha?",
-      "subtitle": "Koostage eelarve ja leidke taastamistööde jaoks rahastus",
-      "info": "<img align='right' src='assets/images/4v1.jpg' class='modalimg'><p>Kui maaomanikult on taastamisplaanidele esialgne nõusolek olemas, saab liikuda edasi järgmise sammuga – otsida taastamistööde jaoks rahastust. Kõige kallimad on projekteerimis- ja ehitustööd soos, mis maksavad 100-1000 eurot hektari kohta, aga raha kulub ka uuringutele.</p><p>Tänapäeval toimub enamik soode taastamistöid projektipõhiselt, mis tähendab, et tuleb järgida kindlaid rahastusreegleid ja kinni pidada tähtaegadest.</p>",
+      "title": "Kui palju on vaja raha?",
+      "subtitle": "Koostage eelarve ja taotlege taastamistööde jaoks vajalik rahastus sobivatest fondidest.",
+      "info": "<img align='right' src='assets/images/4v1.jpg' class='modalimg'><p>Kui maaomanikult on taastamisplaanidele esialgne nõusolek olemas, saab liikuda edasi järgmise sammuga - otsida taastamistööde jaoks rahastust. Kõige kallimad on projekteerimis- ja ehitustööd soos, mis maksavad 100-1000 eurot hektari kohta. Raha aga kulub ka uuringutele.</p><p>Tänapäeval tehakse enamik soode taastamistöid projektipõhiselt, mis tähendab, et tuleb järgida rahastusreegleid ja kinni pidada tähtaegadest.</p>",
       "special": false
     },
     {
       "id": "milline_praegu",
-      "title": "Milline on ala praegu ja mis on plaan?",
-      "subtitle": "Tellige esmased uuringud taastatava ala kohta, mille põhjal valmib taastamiskava",
-      "info": "<img align='right' src='assets/images/5v1.jpg' class='modalimg'><p>Sageli küsitakse, kui kaugest ajast pärinevat maastikuilmet soovitakse taastada. Eesmärk ei olegi \"aega tagasi pöörata\". Taastamise lähtekohaks võetakse see, milline oli maastik vahetult enne inimesepoolset intensiivset sekkumist. Üldiselt peetakse silmas perioodi enne suuremahulisi kuivendustöid, mis Eestis toimusid alates 20. sajandi keskpaigast. Pärast seda muutus soomaastik kiiresti: kraave rajati palju ja sügavaid, mis mõjutas veetaset ja muutis sookooslused tundmatuseni.</p><p>Taastamise eesmärk on luua tingimused, et saaks taastuda looduslik soo. Selleks on vaja teha mitmeid eeluuringuid ja välitöid (nt käiakse läbi kõik kraavid, loendatakse liike, mõõdetakse veetaset, hinnatakse kooslusi tervikuna), mille tulemusena valmib esialgne taastamiskava.</p>",
+      "title": "Kes siin elavad?",
+      "subtitle": "Tellige esmased uuringud taastatava ala loodusliku seisundi ja kultuuriloo kohta.",
+      "info": "<img align='right' src='assets/images/5v1.jpg' class='modalimg'><p>Sageli küsitakse, kui kaugest ajast pärineva maastiku ilmet soovitakse taastada. Eesmärk ei olegi \"pöörata aega tagasi\". Eestis peetakse silmas ajavahemikku enne suuremahulisi kuivendustöid, mis toimusid alates 20. sajandi keskpaigast. Pärast seda muutus soomaastik kiiresti: kraave rajati palju ja sügavaid, mis mõjutas veetaset ja muutis sookooslused tundmatuseni.</p><p>Taastamise eesmärk on luua tingimused soo looduslikuks taastumiseks. Selleks on vaja teha mitmeid eeluuringuid ja välitöid. Näiteks käiakse läbi kõik kraavid, loendatakse liike, mõõdetakse veetaset ja hinnatakse koosluste seisundit.</p>",
       "special": false
     },
     {
       "id": "suhtlus",
-      "title": "Pidev suhtlus",
-      "subtitle": "Tehke koostööd ja suhelge huvigruppidega",
-      "info": "<img align='right' src='assets/images/6v1.jpg' class='modalimg'><p><strong>Suhtlus</strong> toimub kogu taastamise protsessi jooksul. Otsuse, kas üldse taastada või mitte, peaks üldjuhul tegema maaomanik. Samas taastamistööde läbiviimise juures tuleb arvestada paljude huvigruppide esindajate kogemuse, teadmiste ning arvamusega. Inimeste kaasamiseks on palju erinevaid viise - alates küsitlusuuringutest, üks-ühele vestluste ja matkadeni, õppepäevadest talguteni, seminaridest veebihääletusteni.</p><p>Isegi kui kõik ei ole taastamise poolt, aitab rääkimine välja selgitada olulisi aspekte, näiteks millised kraavid, teed, kohad maastikul on inimestele eriliselt olulised ja mille kasutusmugavus peaks säilima.</p><p>Pane see kaart noolte peale, et rõhutada, milliste sammude vahel on suhtlus eriti oluline. Saad seda rakendada mitme noole puhul.</p>",
+      "title": "Mida inimesed arvavad?",
+      "subtitle": "Tehke koostööd ja suhelge erinevate huvigruppidega, keda taastamistööd vahetult mõjutavad.",
+      "info": "<img align='right' src='assets/images/6v1.jpg' class='modalimg'><p>Otsuse, kas üldse taastada või mitte, peaks üldjuhul tegema maaomanik. Samas tuleb taastamistööde juures arvestada paljude huvigruppide esindajate kogemuse, teadmiste ning arvamusega. Inimeste kaasamiseks on palju erinevaid viise - alates koosolekutest, küsitlusuuringutest, üks-ühele vestluste ja matkadeni, õppepäevadest talguteni, seminaridest veebihääletusteni.</p><p>Isegi kui kõik inimesed ei ole taastamise poolt, aitab suhtlemine välja selgitada nende soove, millega saab taastamistöödel arvestada - millised kraavid, teed, kohad maastikul on eriliselt olulised ja mille kasutusmugavus peaks säilima jmt).</p><p>Oluline on pidev suhtlus erinevate osapooltega kogu taastamistegevuse jooksul.</p><p>Pane see kaart noolte peale, et rõhutada, milliste sammude vahel on suhtlus eriti oluline. Saad seda rakendada mitme noole puhul.</p>",
       "special": true
     },
     {
       "id": "arvuti_mudel",
-      "title": "Kuidas võiks soo taastuda arvutis?",
-      "subtitle": "Laske modelleerida, kuidas peaks vesi taastamisalal liikuma",
-      "info": "<img align='right' src='assets/images/7v1.jpg' class='modalimg'><p>Tähtis on, et taastamisplaanid arvestaksid looduse ja inimeste vajadustega – ja seda saab arvutis vähemalt vee osas turvaliselt läbi mängida. Kõrgusmudelite abil saab näidata erinevate lahenduste mõju vee liikumisele ning plaanida taastamistööd võimalikult suure kasu ja väikese kahjuga. Lisaks kraavide täielikule sulgemisele saab ette näha ka veevoolu aeglustavaid lahendusi nagu ülevoolupaisud või sänge looduslikumaks kujundavad voolusuunajad kraavisängis.</p><p>Soo taastumiseks on parim veetase sutike alla maapinna ja sõltub sootüübist - lagesoodes on veetase kõrgemal kui soometsades. Väikesed veekogud võivad tekkida suletud kraavide ümbruses ja muudes suhteliselt madalamates kohtades.</p>",
+      "title": "Katseta virtuaalselt",
+      "subtitle": "Koostage arvuti abil mudel, kuidas peaks soo taastumiseks vesi liikuma. Sealjuures ei tohi see mõjutada alasid, mis jäävad taastamisalast välja.",
+      "info": "<img align='right' src='assets/images/7v1.jpg' class='modalimg'><p>Taastamisplaanides on vaja arvestada nii looduse kui ka inimeste vajadustega - vähemalt veerežiimi muutuse võib arvutis turvaliselt läbi mängida. Kõrgusmudelite abil saab näidata erinevate lahenduste mõju vee liikumisele ning plaanida taastamistööd võimalikult suure kasu ja väikese kahjuga. Lisaks kraavide täielikule sulgemisele saab ette näha ka veevoolu aeglustavaid lahendusi nagu ülevoolupaisud või sänge looduslikumaks kujundavaid voolusuunajaid.</p><p>Soo vajab taastumiseks veetaset, mis küündib maapinna lähedale. Samuti sõltub veetase sootüübist - lagesoodes on veetase kõrgemal kui soometsades. Suletud kraavide ümbruses ja muudes madalamates kohtades võivad tekkida väikesed madalad veekogud.</p>",
       "special": false
     },
     {
       "id": "taastamiskava",
       "title": "Taastamiskava koostamine",
-      "subtitle": "Kogutud andmete põhjal koostage taastamiskava, mida saab hakata erinevate huvigruppidega läbi arutama",
-      "info": "<img align='right' src='assets/images/8v1.jpg' class='modalimg'><p>Taastamiskava hõlmab selgitusi uurimistöö tulemustest ja kirjeldab tulevase taastamisala hüdroloogilisi tingimusi, elustikku  ja ka kultuurilugu. Selle põhjal kujuneb plaan, kus, mida ja kuidas muuta maastikus nii, et soo saaks hakata taastuma. Näiteks pakutakse esmaseid mõtteid, kus ja kuidas tõsta paisude või kraavide kinniajamise abil veetaset, kus on eramaad, kas on turbakaevanduse aladel võimalik ja mõistlik külvata ka turbasamblaid, kuhu teha jalutusrada jpm. Samuti püütakse andmete põhjal hinnata, kuidas hakkab maastik muutuma ehk mis on taastamistööde-järgne sihtkooslus.</p>",
-      "special": false
+      "subtitle": "Koostage kogutud andmete põhjal taastamiskava, mida saab hakata erinevate huvigruppidega läbi arutama.",
+      "info": "<img align='right' src='assets/images/8v1.jpg' class='modalimg'><p>Taastamiskavas võetakse kokku seniste uurimistööde tulemused. Nende põhjal kujuneb parem ettekujutus, kus, mida ja kuidas muuta maastikus, et soo saaks hakata taastuma. Näiteks sisaldab taastamiskava ettepanekuid, milliste liikide elutingimusi soovitakse parandada, kus ja kuidas tõsta veetaset, millised sookooslused hakkavad taastamise järel kujunema või kuhu teha jalutusrada.</p>",
+      "special": false,
+      "autoComm": true
     },
     {
       "id": "ehitusprojekt",
-      "title": "Kuidas ehitada paise?",
-      "subtitle": "Taastamiskava põhjal tellige töödele ehitusprojekt",
-      "info": "<img align='right' src='assets/images/9v1.jpg' class='modalimg'><p>Kui peale pikemaid või lühemaid aruteluringe on taastamiskava valmis, teeb inseneribüroo omapoolsed uuringud ja koostab ehitusprojekti, kus on kirjas, kuidas peavad paisud olema ehitatud. Samuti on vaja nuputada, kuidas ja kuhu pääseb ligi kopaga, aga kuhu vaid jalgsi - neid paise ei saa rajada masinate abil, vaid näiteks talgute korras käsitsi. Kui ehitusprojekt on valmis, tuleb see uuesti kooskõlastada erinevate osapooltega ja välja kuulutada taastamistööde hange.</p>",
-      "special": false
+      "title": "Ehitusprojekti tellimine",
+      "subtitle": "Tellige taastamiskava põhjal töödele ehitusprojekt.",
+      "info": "<img align='right' src='assets/images/9v1.jpg' class='modalimg'><p>Kui peale pikemaid või lühemaid aruteluringe on taastamiskava täiendatud, teevad insenerid uuringud ja koostavad ehitusprojekti, milles on kirjas, kuidas peavad paisud olema ehitatud. Samuti on vaja nuputada, kuidas ja kuhu pääseb ligi kopaga, aga kuhu vaid jalgsi - neid paise ei saa rajada masinate abil, vaid näiteks talgute korras käsitsi. Kui ehitusprojekt on valmis, tuleb see uuesti kooskõlastada erinevate osapooltega ja välja kuulutada taastamistööde hange.</p>",
+      "special": false,
+      "autoComm": true
     },
     {
       "id": "teoks_tegemine",
-      "title": "Kuidas teha plaanid teoks?",
-      "subtitle": "Taastamistööde tegemine maastikul",
-      "info": "<img align='right' src='assets/images/10v1.jpg' class='modalimg'><p>Põhiline taastamistegevus Eesti soodes on paisude rajamine kuivenduskraavidele, mida üldjuhul teevad sobivat tehnikat ja oskusi omavad firmad. Väiksemaid töid saab teha ka talgutena. Et masinad pääseksid õigetesse kohtadesse ligi, rajatakse neile liikumisteid e trasse, mille käigus võetakse maha nii vähe puid, kui võimalik.</p><p>Paisu ehitamine näeb üldiselt välja nagu hambaaugu parandus - esmalt puhastatakse kraavi põhi ja küljed mudast, taimedest ja nende juurtest ning ehitatakse ajutine veetõke, et paisu tegemise koht oleks ehitamise ajal korraks kuiv. Seejärel võtab kopp mitme meetri kauguselt turvast ning asetab kraavi põhja kuni pais on soovitud kõrgusega. Selleks, et vesi kraavi süvendist ümbritsevale maapinnale valgukspaisu ära ei viiks, tehakse paisule kraavi pervele tiivad - kraavile oleks justkui pandud plaaster. Kõige lõpus kaetakse pais mätastega.</p>",
-      "special": false
+      "title": "Taastamistööd maastikul",
+      "subtitle": "Ehitusprojekti põhjal rajatakse kraavidesse paisud.",
+      "info": "<img align='right' src='assets/images/10v1.jpg' class='modalimg'><p>Põhiline taastamistegevus Eesti soodes on paisude rajamine kuivenduskraavidele, mida üldjuhul teevad sobivat tehnikat ja oskusi omavad ettevõtted. Väiksemaid töid saab teha ka talgute abil. Et masinad pääseksid õigetesse kohtadesse ligi, rajatakse neile liikumisteid ehk trasse, mille käigus püütakse võtta maha nii vähe puid, kui võimalik.</p><p>Paisu ehitamine näeb välja nagu hambaaugu parandus - esmalt puhastatakse kraavi põhi ja küljed mudast, taimedest ja nende juurtest ning ehitatakse ajutine veetõke, et paisu tegemise koht oleks ehitamise ajal korraks kuiv. Seejärel võtab kopp mitme meetri kauguselt turvast ning asetab kraavi põhja kuni pais on soovitud kõrgusega. Selleks, et vesi valguks kraavi süvendist ümbritsevale maapinnale, tehakse paisule kraavi pervele tiivad - pannakse kraavile justkui plaaster. Kõige lõpus kaetakse pais mätastega.</p>",
+      "special": false,
+      "autoComm": true
     },
     {
       "id": "jarelevalve",
       "title": "Mis saab edasi?",
-      "subtitle": "Järgnevate aastate jooksul jälgige, kuidas soo hakkab taastuma",
-      "info": "<img align='right' src='assets/images/11v1.jpg' class='modalimg'><p>Mõne aasta jooksul kaovad maastikul taastamistööde jäljed ning ala võtab tasapisi soisema ilme. Uurimistööde käigus hinnatakse, kas soole iseloomulikud liigid on hakanud tagasi tulema, kuidas veetase aasta lõikes ühtlustub, kas vanadel turbakaevandusaladel kattub pinnas sootaimestikuga jpm.</p><p>Väike osa kuivendamise järgselt kasvama hakanud puudest võivad hukkuda, kuid toiteainete olemasolul tulevad asemele uued, kelle juurestik on kohanenud kõrge veetasemega. Osa metsa jääbki hõredam või tekivad ka lagedamad alad. Surnud puud pakuvad elupaika uutele liikidele, kes vajavadki lagupuitu. Ühtlasi väheneb üleujutuste oht, kuna soo hoiab ka sadudest tingitud liigvett paremini kinni. Tulekahju korral ei levi tuli märjas turbapinnases nii hõlpsasti. Taastuvat sood ja tema väärtusi saab näidata külalistele ja käia loomulikult nautimas eelkõige ise.</p>",
+      "subtitle": "Järgnevate aastate jooksul saab jälgida, kuidas soo hakkab taastuma.",
+      "info": "<img align='right' src='assets/images/11v1.jpg' class='modalimg'><p>Mõne aasta jooksul kaovad maastikul taastamistööde jäljed ning ala võtab tasapisi soisema ilme. Uurimistööde käigus hinnatakse, kas näiteks soole iseloomulikud liigid on hakanud tagasi tulema, kuidas veetase aasta lõikes ühtlustub, kas vanadel turbakaevandusaladel kattub pinnas sootaimestikuga.</p><p>Väike osa kuivendamise järgselt kasvama hakanud puudest võivad hukkuda, kuid toitainete olemasolul tulevad asemele uued, kelle juurestik on kohanenud kõrge veetasemega. Osa metsa jääbki hõredam või tekivad ka lagedamad alad. Surnud puud pakuvad elupaika uutele liikidele, kes vajavadki lagupuitu. Ühtlasi väheneb üleujutuste oht, kuna soo hoiab ka sadudest tingitud liigvett paremini kinni. Tulekahju korral ei levi tuli märjas turbapinnases nii hõlpsasti. Taastuvat sood ja tema väärtusi saab näidata külalistele ja käia loomulikult nautimas eelkõige ise.</p>",
       "special": false
     }
   ],
-  "correctOrders": [
-    [
-      "tahame_taastada",
-      "kes_on_omanik",
-      "mis_on_lugu",
-      "palju_raha",
-      "milline_praegu",
-      "arvuti_mudel",
-      "ehitusprojekt",
-      "teoks_tegemine",
-      "jarelevalve"
+  "validationRules": {
+    "phases": [
+      {
+        "positions": [0],
+        "oneOf": ["tahame_taastada", "mis_on_lugu"]
+      },
+      {
+        "positions": [1, 2, 3, 4],
+        "conditional": {
+          "if": { "position": 0, "equals": "tahame_taastada" },
+          "then": {
+            "mustContainAll": ["kes_on_omanik", "mis_on_lugu", "palju_raha", "milline_praegu"],
+            "anyOrder": true
+          },
+          "else": {
+            "mustContainAll": ["tahame_taastada", "kes_on_omanik", "palju_raha", "milline_praegu"],
+            "anyOrder": true
+          }
+        }
+      },
+      {
+        "positions": [5, 6],
+        "mustContainAll": ["arvuti_mudel", "taastamiskava"],
+        "anyOrder": true
+      },
+      {
+        "positions": [7],
+        "mustBe": "ehitusprojekt"
+      },
+      {
+        "positions": [8],
+        "mustBe": "teoks_tegemine"
+      },
+      {
+        "positions": [9],
+        "mustBe": "jarelevalve"
+      }
     ]
-  ],
-  "partialOrders": [
-    {
-      "order": [
-        "tahame_taastada",
-        "kes_on_omanik",
-        "palju_raha",
-        "mis_on_lugu",
-        "milline_praegu",
-        "arvuti_mudel",
-        "ehitusprojekt",
-        "teoks_tegemine",
-        "jarelevalve"
-      ],
-      "feedback": "Kontrolli protsessi algust: enne rahastuse leidmist tuleks uurida soo ajalugu ja tausta."
-    },
-    {
-      "order": [
-        "tahame_taastada",
-        "kes_on_omanik",
-        "mis_on_lugu",
-        "palju_raha",
-        "milline_praegu",
-        "ehitusprojekt",
-        "arvuti_mudel",
-        "teoks_tegemine",
-        "jarelevalve"
-      ],
-      "feedback": "Arvutimudel peaks tulema enne ehitusprojekti koostamist, et planeerida parimaid lahendusi."
-    },
-    {
-      "order": [
-        "tahame_taastada",
-        "kes_on_omanik",
-        "mis_on_lugu",
-        "milline_praegu",
-        "palju_raha",
-        "arvuti_mudel",
-        "ehitusprojekt",
-        "teoks_tegemine",
-        "jarelevalve"
-      ],
-      "feedback": "Rahastust tuleks otsida enne uuringute tellimist, et olla kindel, et projektil on rahalist tuge."
-    }
-  ],
+  },
   "feedback": {
-    "correct": "Õige! Oled kõik sammud paigutanud õigesse järjekorda.",
-    "partial": "Järjekord on osaliselt õige. Mõned sammud on veel valesti.",
-    "incorrect": "See järjekord ei ole õige. Palun proovi uuesti."
+    "correct": "Tundub, et oled soode taastamisega lähemalt kokku puutunud.",
+    "partial": "Nuputa pisut veel, kas neid tegevusi on ikka võimalik teha sellises järjekorras.",
+    "incorrect": "Proovi veel."
   }
 };
 
@@ -162,7 +156,9 @@
     inactivityGraceTimer: null,
     inactivityModalOpen: false,
     previouslyComplete: false,
-    hasInteracted: false
+    hasInteracted: false,
+    firstInteractionTime: null,
+    lastFeedbackResult: null
   };
 
   const infoModal = document.getElementById('info-modal');
@@ -251,6 +247,45 @@
   
   setupPlaceholders();
   initializeGame();
+
+  // Debug helper: expose test functions to console
+  window.testGame = {
+    // Place a card by id into a slot by index (0-based)
+    placeCard: (cardId, slotIndex) => {
+      const cardEntry = state.cards.get(cardId);
+      if (!cardEntry) {
+        console.error('Card not found:', cardId);
+        return;
+      }
+      placeCardInSlot(cardEntry.node, slotIndex);
+      checkCompletion();
+    },
+    // Place all cards in a specific order (array of card ids)
+    placeAll: (cardIds) => {
+      cardIds.forEach((id, index) => {
+        if (id) window.testGame.placeCard(id, index);
+      });
+    },
+    // Test correct order
+    testCorrect: () => {
+      window.testGame.placeAll([
+        'tahame_taastada', 'kes_on_omanik', 'mis_on_lugu', 'palju_raha', 'milline_praegu',
+        'arvuti_mudel', 'taastamiskava', 'ehitusprojekt', 'teoks_tegemine', 'jarelevalve'
+      ]);
+    },
+    // Test with 1-2 mistakes (partial)
+    testPartial: () => {
+      window.testGame.placeAll([
+        'tahame_taastada', 'kes_on_omanik', 'mis_on_lugu', 'palju_raha', 'milline_praegu',
+        'taastamiskava', 'arvuti_mudel', 'teoks_tegemine', 'ehitusprojekt', 'jarelevalve'
+      ]);
+    },
+    // Reset the game
+    reset: () => resetGame(),
+    // Trigger evaluation
+    evaluate: () => evaluateSequence()
+  };
+  console.log('Test helpers available: testGame.testCorrect(), testGame.testPartial(), testGame.reset(), testGame.evaluate()');
 
   function setupPlaceholders() {
     console.log('setupPlaceholders called, placeholders:', placeholders.length);
@@ -378,7 +413,10 @@
 
   event.preventDefault();
   // Mark that the user has interacted with the game
-  state.hasInteracted = true;
+  if (!state.hasInteracted) {
+    state.hasInteracted = true;
+    state.firstInteractionTime = Date.now();
+  }
   registerActivity();
 
     if (isAnyModalOpen()) {
@@ -691,11 +729,78 @@
 
       if (active) {
         arrow.classList.add('active');
+        // Auto-apply comm class if the card in first slot has autoComm enabled
+        const cardId = first.dataset.cardId;
+        const cardEntry = state.cards.get(cardId);
+        if (cardEntry && cardEntry.element.autoComm && !arrow.classList.contains('comm')) {
+          // Trigger flying animation before adding comm class
+          animateSpecialCardToArrow(arrow, () => {
+            arrow.classList.add('comm');
+          });
+        }
       } else {
         arrow.classList.remove('active');
         arrow.classList.remove('comm');
       }
     });
+  }
+
+  function animateSpecialCardToArrow(arrow, onComplete) {
+    // Find the special card (suhtlus)
+    const specialEntry = Array.from(state.cards.values()).find(
+      (entry) => entry.element.special
+    );
+    if (!specialEntry) {
+      onComplete();
+      return;
+    }
+
+    const specialCard = specialEntry.node;
+    const cardRect = specialCard.getBoundingClientRect();
+    const arrowRect = arrow.getBoundingClientRect();
+
+    // Create a clone for the animation
+    const clone = specialCard.cloneNode(true);
+    clone.style.position = 'fixed';
+    clone.style.left = `${cardRect.left}px`;
+    clone.style.top = `${cardRect.top}px`;
+    clone.style.width = `${cardRect.width}px`;
+    clone.style.height = `${cardRect.height}px`;
+    clone.style.margin = '0';
+    clone.style.zIndex = '9999';
+    clone.style.pointerEvents = 'none';
+    clone.style.transition = 'all 0.5s ease-in-out';
+    clone.style.transformOrigin = 'center center';
+    document.body.appendChild(clone);
+
+    // Calculate target position (center of arrow)
+    const targetX = arrowRect.left + arrowRect.width / 2 - cardRect.width / 2;
+    const targetY = arrowRect.top + arrowRect.height / 2 - cardRect.height / 2;
+
+    // Trigger animation on next frame
+    requestAnimationFrame(() => {
+      clone.style.left = `${targetX}px`;
+      clone.style.top = `${targetY}px`;
+      clone.style.transform = 'scale(0.1)';
+      clone.style.opacity = '0.3';
+    });
+
+    // Clean up after animation
+    clone.addEventListener('transitionend', function handler(e) {
+      if (e.propertyName === 'transform') {
+        clone.removeEventListener('transitionend', handler);
+        clone.remove();
+        onComplete();
+      }
+    });
+
+    // Fallback in case transitionend doesn't fire
+    setTimeout(() => {
+      if (clone.parentNode) {
+        clone.remove();
+        onComplete();
+      }
+    }, 600);
   }
 
   function snapToPoolPosition(card) {
@@ -747,46 +852,72 @@
   function evaluateSequence() {
     if (!state.data) return;
     const ids = placeholders.map((slot) => slot.dataset.cardId);
-    const { correctOrders = [], partialOrders = [], feedback = {} } = state.data;
+    const { validationRules = {}, feedback = {} } = state.data;
+    const phases = validationRules.phases || [];
 
-    let result = 'incorrect';
-    let message = feedback.incorrect || 'That order is not correct. Please try again.';
+    let mistakes = 0;
 
-    const isMatch = (arrA, arrB) =>
-      arrA.length === arrB.length && arrA.every((value, index) => value === arrB[index]);
+    // Validate each phase
+    phases.forEach((phase) => {
+      const { positions, oneOf, mustBe, mustContainAll, anyOrder, conditional } = phase;
 
-    const correctMatch = correctOrders.find((order) => isMatch(order, ids));
-    if (correctMatch) {
-      result = 'correct';
-      message = feedback.correct || 'Correct! You have arranged all steps in the right order.';
-    } else {
-      const partialMatch = partialOrders.find((entry) => isMatch(entry.order, ids));
-      if (partialMatch) {
-        result = 'partial';
-        message =
-          partialMatch.feedback ||
-          feedback.partial ||
-          'The order is partially correct. Some steps are out of place.';
+      if (oneOf) {
+        // Each position must have one of the allowed values
+        positions.forEach((pos) => {
+          if (!oneOf.includes(ids[pos])) {
+            mistakes++;
+          }
+        });
+      } else if (mustBe) {
+        // Single position must be exact value
+        positions.forEach((pos) => {
+          if (ids[pos] !== mustBe) {
+            mistakes++;
+          }
+        });
+      } else if (mustContainAll) {
+        // Positions must contain all specified values (in any order if anyOrder is true)
+        const slotValues = positions.map((pos) => ids[pos]);
+        mustContainAll.forEach((required) => {
+          if (!slotValues.includes(required)) {
+            mistakes++;
+          }
+        });
+      } else if (conditional) {
+        // Conditional validation based on another position
+        const conditionMet = ids[conditional.if.position] === conditional.if.equals;
+        const rule = conditionMet ? conditional.then : conditional.else;
+        if (rule.mustContainAll) {
+          const slotValues = positions.map((pos) => ids[pos]);
+          rule.mustContainAll.forEach((required) => {
+            if (!slotValues.includes(required)) {
+              mistakes++;
+            }
+          });
+        }
       }
+    });
+
+    let result;
+    let message;
+
+    if (mistakes === 0) {
+      result = 'correct';
+      message = feedback.correct || 'Correct!';
+    } else if (mistakes <= 2) {
+      result = 'partial';
+      message = feedback.partial || 'Almost there, a few steps are out of place.';
+    } else {
+      result = 'incorrect';
+      message = feedback.incorrect || 'Please try again.';
     }
 
     feedbackMessageEl.textContent = message;
     openModal(feedbackModal);
 
-    // Optional analytics payload placeholder
-    if (navigator.onLine) {
-      const payload = {
-        timestamp: Date.now(),
-        order: ids,
-        result
-      };
-
-      // fetch('https://example.com/api/ordering-game', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload)
-      // }).catch(() => {});
-    }
+    // Store result and send log
+    state.lastFeedbackResult = result;
+    sendLog('confirm');
   }
 
   function openInfoModal(element) {
@@ -886,6 +1017,8 @@
     confirmBtn.disabled = true;
     state.previouslyComplete = false;
     state.hasInteracted = false;
+    state.firstInteractionTime = null;
+    state.lastFeedbackResult = null;
     registerActivity();
   }
 
@@ -915,8 +1048,43 @@
     state.inactivityGraceTimer = setTimeout(() => {
       closeModal(inactivityModal);
       state.inactivityModalOpen = false;
+      // Log abandoned session before reset
+      sendLog('inactivity_reset');
       resetGame();
       state.inactivityGraceTimer = null;
     }, 10000);
   }
+
+  // ============ LOGGING FUNCTION ============
+  function sendLog(trigger) {
+    if (!loggingConfig.enabled) return;
+    if (!navigator.onLine) return;
+    if (!state.hasInteracted) return;
+
+    const now = Date.now();
+    const usageTimeSeconds = state.firstInteractionTime 
+      ? Math.round((now - state.firstInteractionTime) / 1000)
+      : 0;
+
+    const slotIds = placeholders.map((slot) => slot.dataset.cardId || '');
+
+    const payload = {
+      datetime: new Date().toISOString(),
+      trigger: trigger,  // 'confirm' or 'inactivity_reset'
+      feedbackResult: state.lastFeedbackResult || 'none',
+      slotIds: slotIds,
+      usageTimeSeconds: usageTimeSeconds
+    };
+
+    // Fire and forget - don't wait for response, don't show errors
+    fetch(loggingConfig.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true  // Ensure request completes even if page unloads
+    }).catch(() => {
+      // Silently ignore any errors
+    });
+  }
+  // ==========================================
 })();
