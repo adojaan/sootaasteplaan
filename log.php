@@ -4,8 +4,13 @@
  * Place this file on your remote server and update loggingConfig.endpoint in script.js
  * 
  * Logs are stored in CSV format in the same directory as this script.
- * Make sure the directory is writable by the web server.
+ * Make sure the log file is writable by the web server (chmod 666 game_logs.csv).
  */
+
+// Error reporting for debugging (remove in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 // Allow CORS from any origin (adjust as needed for security)
 header('Access-Control-Allow-Origin: *');
@@ -32,7 +37,7 @@ $data = json_decode($input, true);
 
 if (!$data) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
+    echo json_encode(['error' => 'Invalid JSON', 'received' => $input]);
     exit;
 }
 
@@ -56,14 +61,21 @@ $slotIdsStr = implode(';', $slotIds);
 // Log file path (same directory as script)
 $logFile = __DIR__ . '/game_logs.csv';
 
+// Check if directory is writable
+if (!is_writable(__DIR__)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Directory not writable', 'dir' => __DIR__]);
+    exit;
+}
+
 // Create header if file doesn't exist
 $writeHeader = !file_exists($logFile);
 
 // Open file for appending
-$fp = fopen($logFile, 'a');
+$fp = @fopen($logFile, 'a');
 if (!$fp) {
     http_response_code(500);
-    echo json_encode(['error' => 'Could not open log file']);
+    echo json_encode(['error' => 'Could not open log file', 'file' => $logFile, 'exists' => file_exists($logFile), 'writable' => is_writable($logFile)]);
     exit;
 }
 
