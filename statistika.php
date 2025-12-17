@@ -52,13 +52,18 @@ if (file_exists($csvFile) && is_readable($csvFile)) {
     $handle = fopen($csvFile, 'r');
     $header = fgetcsv($handle);
     while (($row = fgetcsv($handle)) !== false) {
-        if (count($row) >= 14) {
+        // CSV format: datetime, ip, trigger, feedback_result, slot_ids (semicolon-separated), usage_time_seconds
+        if (count($row) >= 6) {
+            // Parse slot_ids from semicolon-separated string
+            $slotIdsStr = $row[4] ?? '';
+            $slots = $slotIdsStr ? explode(';', $slotIdsStr) : [];
+            
             $sessions[] = [
                 'datetime' => $row[0],
-                'trigger' => $row[1],
-                'result' => $row[2],
-                'slots' => array_slice($row, 3, 10),
-                'duration' => (int)$row[13]
+                'trigger' => $row[2],
+                'result' => $row[3],
+                'slots' => $slots,
+                'duration' => (int)($row[5] ?? 0)
             ];
         }
     }
