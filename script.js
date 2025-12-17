@@ -6,6 +6,13 @@
   };
   // ================================================
 
+  // ============ KIOSK MODE CONFIGURATION ============
+  const kioskConfig = {
+    enabled: true,  // Set to false to disable kiosk protections
+    backdoorHoldTime: 3000  // Hold info icon for 3 seconds to exit kiosk
+  };
+  // ==================================================
+
   const gameData = {
   "elements": [
     {
@@ -344,6 +351,26 @@
       infoIcon.alt = 'More information';
       infoIcon.className = 'info-icon';
       card.appendChild(infoIcon);
+
+      // Long-press backdoor for special card's info icon
+      if (element.special && kioskConfig.enabled) {
+        let backdoorTimer = null;
+        infoIcon.addEventListener('pointerdown', (e) => {
+          backdoorTimer = setTimeout(() => {
+            if (confirm('Väljuda kioskirežiimist? / Exit kiosk mode?')) {
+              // Exit fullscreen
+              if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+              }
+              // Open a blank page to allow browser access
+              window.open('about:blank', '_self');
+            }
+          }, kioskConfig.backdoorHoldTime);
+        });
+        infoIcon.addEventListener('pointerup', () => clearTimeout(backdoorTimer));
+        infoIcon.addEventListener('pointercancel', () => clearTimeout(backdoorTimer));
+        infoIcon.addEventListener('pointerleave', () => clearTimeout(backdoorTimer));
+      }
 
       card.addEventListener('pointerdown', handlePointerDown);
       card.addEventListener('pointerup', handlePointerUp);
@@ -1054,6 +1081,50 @@
       state.inactivityGraceTimer = null;
     }, 10000);
   }
+
+  // ============ KIOSK MODE PROTECTIONS ============
+  function initKioskProtections() {
+    if (!kioskConfig.enabled) return;
+
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Prevent text selection via long-press on touch
+    document.addEventListener('selectstart', (e) => {
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    });
+
+    // Prevent navigation gestures (swipe back/forward)
+    document.addEventListener('touchstart', (e) => {
+      // Allow only if touch is not at edges (where swipe-to-navigate triggers)
+      const touch = e.touches[0];
+      const edgeThreshold = 30;
+      if (touch.clientX < edgeThreshold || touch.clientX > window.innerWidth - edgeThreshold) {
+        // Near edge - could be navigation gesture, but we can't fully prevent it
+        // The CSS touch-action: none on body helps more
+      }
+    }, { passive: true });
+
+    // Prevent page from being refreshed via pull-to-refresh
+    document.body.style.overscrollBehavior = 'none';
+
+    // Request fullscreen on first interaction (optional, for non-kiosk-flag launch)
+    document.addEventListener('click', function enterFullscreen() {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      document.removeEventListener('click', enterFullscreen);
+    }, { once: true });
+  }
+
+  // Initialize kiosk protections immediately
+  initKioskProtections();
+  // ================================================
 
   // ============ LOGGING FUNCTION ============
   function sendLog(trigger) {

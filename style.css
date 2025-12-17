@@ -37,7 +37,6 @@ body {
   background-image: url("assets/images/bg3.jpg");
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  background
 }
 
 #game-container {
@@ -281,15 +280,16 @@ img.modalimg {
 .card.special {
   border: none; /* we draw our own dashed outline in the SVG */
   background: transparent;
+  width: 260px;
   border-radius: 0;
   color: var(--accent); /* used by SVG as currentColor for stroke */
   /* Inline SVG draws a rectangle with a narrow stem and a triangle head */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-51 -15 192 160'><path d='M-33 -15 H133 A8 8 0 0 1 141 -7 V100 A8 8 0 0 1 133 108 H60 V130 H66 L50 145 L34 130 H40 V108 H-33 A8 8 0 0 1 -41 100 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(255,243,224,0.95)' stroke='rgba(255,152,0,1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-51 -15 242 160'><path d='M-33 -15 H183 A8 8 0 0 1 191 -7 V100 A8 8 0 0 1 183 108 H85 V130 H91 L75 145 L59 130 H65 V108 H-33 A8 8 0 0 1 -41 100 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(255,243,224,0.95)' stroke='rgba(255,152,0,1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
   box-shadow: none;
   background-size: 100% 100%;
   /* keep text clear of the arrow stem/head */
-  padding-bottom: 3.6rem;
+  padding: 1.2rem 1.6rem 3.6rem 1.6rem;
 }
 
 /* Ensure text stays readable within clipped shape */
