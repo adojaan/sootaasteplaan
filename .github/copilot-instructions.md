@@ -1,3 +1,13 @@
+## Custom fonts
+
+- All custom fonts are in `assets/fonts/` (Regar Demo, Bogle in .woff/.otf/.ttf formats)
+- Fonts are loaded via `@font-face` in `style.css` (see top of file)
+- Usage:
+  - Regar Demo: game title (`.game-title`)
+  - Bogle Bold: card title (`.card-title`)
+  - Bogle Regular: card text (default for `.card`)
+  - Bogle Italic: card subtitle (`.card-subtitle`)
+- To add new fonts, place files in `assets/fonts/` and add a new `@font-face` rule in `style.css`
 ## Quick repo snapshot
 
 - Purpose: a drag-and-drop ordering game for bog restoration process steps (currently 10 slots + 1 special card). Built as a static single-page app (vanilla JS, no frameworks). Core files: `index.html`, `style.css`, `script.js`.
