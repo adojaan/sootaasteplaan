@@ -1,71 +1,85 @@
 ## Quick repo snapshot
 
-- Purpose: a drag-and-drop ordering game for a configurable number of process steps (currently 9). Built as a static single-page app (vanilla JS, no frameworks). Core files: `index.html`, `style.css`, `script.js`, `data.json`.
-- Runtime: client-side JS. `script.js` fetches `data.json` so serve the files over HTTP (see "Dev / run").
-- Target: Chrome desktop/mobile with touch and mouse support. Must work **offline** (all assets local, no CDN dependencies).
+- Purpose: a drag-and-drop ordering game for bog restoration process steps (currently 10 slots + 1 special card). Built as a static single-page app (vanilla JS, no frameworks). Core files: `index.html`, `style.css`, `script.js`.
+- Runtime: client-side JS. Game data is embedded inline in `script.js` (no external JSON fetch).
+- Target: Edge/Chrome/Firefox desktop with touch and mouse support. Must work **offline** (all assets local, no CDN dependencies except Chart.js in statistika.php).
+- Deployment: Windows kiosk mode via `start-kiosk.bat` or `start-kiosk-local.bat`.
 
 ## Big-picture architecture
 
 - Single-page static app: all logic is in `script.js`. UI is defined in `index.html` and styled in `style.css`.
-- Data-driven: `data.json` contains `elements` (cards), `correctOrders`, `partialOrders`, and `feedback`. Changes to game content and scoring are made here.
+- Data-driven: `gameData` object in `script.js` contains `elements` (cards), `validationRules` (phase-based), and `feedback`. Changes to game content and scoring are made there.
 - Custom drag/drop: Uses **Pointer Events API** (not HTML5 drag/drop) for cross-device compatibility (mouse + touch). See `handlePointerDown`, `handlePointerMove`, `handlePointerUp` in `script.js`.
+- Kiosk mode: `kioskConfig` in `script.js` controls right-click blocking, text selection prevention, and backdoor exit (long-press special card info icon).
+- Logging: `loggingConfig` in `script.js` sends session data to `log.php` on confirm or inactivity reset.
 
 ## Key files and hot spots to edit
 
-- `data.json` — add / edit card entries under `elements` (fields: `id`, `title`, `subtitle`, `info`, `special`). Update `correctOrders` / `partialOrders` for scoring and feedback.
 - `script.js` — core areas:
-  - createCards(elements): builds DOM cards from `data.json`.
-  - Drag/drop: handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, finalizeDrop.
-  - Completion/evaluation: checkCompletion(), evaluateSequence() — update these if you change how ordering or scoring works.
-  - Helpers: positionCardRandomly, storePoolPosition, snapToPoolPosition, placeCardInSlot.
-- `index.html` — placeholder slots are explicit DOM nodes (many `.placeholder-slot` entries). Adjust the number/order here if you change game length.
+  - `gameData.elements`: card definitions (id, title, subtitle, info, special, autoComm)
+  - `gameData.validationRules.phases`: phase-based validation logic
+  - `kioskConfig`: kiosk mode settings
+  - `loggingConfig`: remote logging endpoint
+  - Drag/drop: handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, finalizeDrop
+  - Completion/evaluation: checkCompletion(), evaluateSequence()
+  - Auto-comm animation: animateSpecialCardToArrow()
+- `style.css` — `.card.special` has inline SVG background for arrow shape
+- `index.html` — 10 `.placeholder-slot` elements + 9 `.arrow-indicator` elements
+- `start-kiosk.bat` / `start-kiosk-local.bat` — Windows kiosk launchers (Edge/Chrome/Firefox)
+- `auto-update.bat` — Git pull with conditional browser restart
+- `log.php` — Server-side CSV logging
+- `statistika.php` — Statistics dashboard (uses Chart.js CDN)
 
 ## Project-specific patterns & conventions
 
 - **Data attributes drive behavior**: cards use `data-id`, `data-special` and `data-slotIndex`. Placeholder slots use `data-index` and `data-cardId`.
-- **The special card (communication)** is marked via `special: true` in `data.json` and `card.dataset.special === 'true'` in code:
-  - **Cannot** be placed in normal slots; only dropped onto `.arrow-indicator.active` elements (arrows between filled adjacent slots).
-  - Is **reusable** (dropping it on an arrow toggles the arrow's `.comm` class but does not consume the card; it stays in the pool).
-  - Once applied to an arrow, the arrow state persists until reset or one of the adjacent slots is emptied.
-- **Drag/drop swap logic**: 
-  - Pool → empty slot: place card.
-  - Pool → filled slot: **disallowed** (no drop).
-  - Slot → slot: **swap** the two cards (even if target is filled).
-  - Slot → pool: remove card from slot, place in pool at drop coords.
-- **Arrows** (`.arrow-indicator`): appear between adjacent slots only when **both** slots are filled. Hidden (opacity:0, pointer-events:none) otherwise. Use `updateArrows()` after any card placement/removal.
-- **Modals**: modal elements in `index.html` toggle via `aria-hidden` and `modal-open` on the document body; buttons use `data-close="<id>"` to close dialogs.
-- **Inactivity timer**: 60s of no interaction → show inactivity modal. 10s more without response → auto-reset. Reset timer on any `pointerdown` or `keydown` event (see `registerActivity()` and `resetInactivityTimer()`).
-- **Offline-first**: all assets (fonts, icons, images) must be local relative paths. No external CDN or network dependencies except optional analytics POST on confirm (wrapped in try/catch).
+- **The special card (suhtlus/communication)** is marked via `special: true` in gameData:
+  - **Cannot** be placed in normal slots; only dropped onto `.arrow-indicator.active` elements.
+  - Is **reusable** (stays in pool after applying to arrow).
+  - Cards with `autoComm: true` trigger automatic arrow highlighting with flying animation.
+- **Validation uses phases**, not fixed correct order:
+  - Position 0: oneOf `["tahame_taastada", "mis_on_lugu"]`
+  - Positions 1-4: conditional mustContainAll (depends on position 0)
+  - Positions 5-6: mustContainAll `["arvuti_mudel", "taastamiskava"]` anyOrder
+  - Position 7: mustBe `"ehitusprojekt"`
+  - Position 8: mustBe `"teoks_tegemine"`
+  - Position 9: mustBe `"jarelevalve"`
+- **Mistake counting**: 0 mistakes = correct, 1-2 = partial, 3+ = incorrect
+- **Arrows** (`.arrow-indicator`): visible only when both adjacent slots filled. `.comm` class = orange color.
+- **Inactivity timer**: 60s → inactivity modal. 10s more → log + auto-reset.
+- **Kiosk backdoor**: Long-press (3s) on special card's info icon to exit.
 
-## Dev / run / debug (practical)
+## Kiosk deployment files
 
-- Recommended (works reliably): run a simple HTTP server at the project root so fetch('data.json') succeeds.
-  - Python (if available): `python -m http.server 8000`
-  - Node (if you have http-server): `npx http-server . -p 8000`
-- In VS Code, the Live Server extension also works and auto-reloads on save.
-- Debugging tips: open browser DevTools → Console. The global `state` object in `script.js` contains runtime info (cards Map, data). Add breakpoints in `script.js` inside the drag/drop handlers or `evaluateSequence()` to inspect behavior.
+| File | Purpose |
+|------|---------|
+| `start-kiosk.bat` | Launch kiosk with remote URL (or custom URL as argument) |
+| `start-kiosk-local.bat` | Launch kiosk with local index.html (auto-detects path) |
+| `start-kiosk.ps1` | PowerShell version of above |
+| `auto-update.bat` | Git pull, restart browser only if changes detected |
 
-## Small examples to follow
+Browser priority: Edge → Chrome → Firefox. Uses separate profile (`%TEMP%\KioskProfile`) to not interfere with user's browser.
 
-- **To add a new card**, update `data.json` elements with a unique `id` and a `special: true|false` flag. The UI will be rebuilt on reload.
-- **To mark an arrow as active programmatically**: find the `.arrow-indicator` with the `data-index` you want and add the `active` class; the special card logic checks for arrows with `.active` before allowing drops.
-- **Swapping cards**: when dragging a card from one slot to another filled slot, `finalizeDrop()` calls logic that appends the dragged card to the target slot and moves the occupant to the source slot (or pool if source was pool).
-- **Pointer capture**: `card.setPointerCapture(event.pointerId)` ensures `pointermove` events follow the card even if pointer leaves its bounds. Release with `card.releasePointerCapture(event.pointerId)` on drop.
+## Dev / run / debug
 
-## Design constraints (from original spec)
+- For development: `python -m http.server 8000` or VS Code Live Server
+- For kiosk testing: `start-kiosk-local.bat` (runs local file directly)
+- Debug: browser DevTools → Console. `window.testGame` has helpers:
+  - `testGame.testCorrect()` — fill all slots correctly
+  - `testGame.testPartial()` — fill with 1-2 mistakes
+  - `testGame.reset()` — reset game
+  - `testGame.evaluate()` — trigger evaluation
 
-- **Touch + mouse**: use Pointer Events API (not HTML5 drag/drop) for reliable touch/mouse support. Set `touch-action: none` on draggable elements to prevent scroll interference.
-- **9 slots fixed**: the game always has 9 placeholder slots (hardcoded in `index.html`). If you change the number of steps, update the HTML manually (9 `.placeholder-slot` + 8 `.arrow-indicator` elements).
-  - **Recommended refactor:** For better maintainability, consider generating the placeholder slots and arrow indicators dynamically in JavaScript based on the number of steps in `data.json`. This decouples the HTML structure from the game logic and allows the game length to be changed by editing only `data.json`.
-- **Confirm flow**: when all 9 slots are filled, enable the "Confirm Order" button and optionally show the confirm modal. On confirm, `evaluateSequence()` compares the slot order to `correctOrders` and `partialOrders` arrays.
-- **Partial credit**: `partialOrders` in `data.json` can have custom feedback per sequence. If a user's order matches a partial sequence, show that specific feedback; otherwise fall back to generic incorrect message.
-- **Info modal**: clicking the info icon (`.info-icon`) opens a modal with `element.info` HTML content. While modal is open, dragging is implicitly disabled (overlay catches pointer events).
-- **Reset behavior**: reset clears all slots, removes all arrow states (`.active`, `.comm`), repositions cards randomly in pool, and hides any open modals. Optionally prompt for confirmation before resetting (see `#reset-modal`).
+## Server-side files
+
+- `log.php` — receives POST with session data, appends to `game_logs.csv`
+- `statistika.php` — reads CSV, shows charts (pie, line, bar) and 10×10 heatmap
+- CSV format: datetime, ip, trigger, feedback_result, slot_ids (semicolon-separated), usage_time_seconds
 
 ## Notes for AI agents
 
-- Prefer minimal, localized edits. Changing drag/drop math or DOM structure in `script.js` affects many behaviors — run the app and test interactive flows after edits.
-- Preserve existing DOM data-attributes and ARIA attributes when refactoring; they are used by the script for behavior and accessibility.
-- If a change requires serving new static assets (e.g., images), update `index.html` and `assets/` and verify paths.
-
-If any of this is incomplete or you want the agent to add a small developer script (example: `start-server.ps1`), say which you prefer and I will add it.
+- Game data is now inline in `script.js`, not in external `data.json`
+- 10 slots (not 9) — index.html has 10 placeholder-slot elements
+- Preserve kiosk/logging config at top of script.js when editing
+- Kiosk scripts support Edge, Chrome, Firefox — test accordingly
+- Statistics page uses Chart.js from CDN (only exception to offline-first rule)
