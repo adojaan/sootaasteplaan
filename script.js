@@ -2,7 +2,7 @@
   // ============ LOGGING CONFIGURATION ============
   const loggingConfig = {
     enabled: true,  // Set to false to disable logging
-    endpoint: 'https://dev90.5dvision.ee/~kristjan/sootaasteplaan/log.php'  // URL of your PHP logging script
+    endpoint: 'https://sootaasteplaan.metsamang.natmuseum.ut.ee/log.php'  // URL of your PHP logging script
   };
   // ================================================
 
