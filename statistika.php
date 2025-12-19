@@ -322,7 +322,20 @@ foreach ($crossTable as $cardId => $slots) {
 <body>
     <div class="dashboard">
         <h1>📊 Soo Taasteplaan - Statistika</h1>
-        <p class="subtitle">Viimati uuendatud: <?= date('d.m.Y H:i') ?> | Kokku sessioone: <?= count($sessions) ?></p>
+        <?php
+        // Find last submission time (latest session datetime)
+        $lastSubmission = '';
+        if (count($sessions) > 0) {
+            $last = end($sessions);
+            $lastSubmission = $last['datetime'];
+            // Try to parse and format as local time
+            $ts = strtotime($lastSubmission);
+            if ($ts !== false) {
+                $lastSubmission = date('d.m.Y H:i', $ts);
+            }
+        }
+        ?>
+        <p class="subtitle">Viimati uuendatud: <?= date('d.m.Y H:i') ?> | Kokku sessioone: <?= count($sessions) ?> | Viimane tulemus: <?= htmlspecialchars($lastSubmission) ?></p>
         
         <?php if (count($sessions) === 0): ?>
         <div class="card no-data">

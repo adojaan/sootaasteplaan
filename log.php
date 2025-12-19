@@ -1,3 +1,23 @@
+// --- SECURITY: Limit POST body size (max 4KB) ---
+if (isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 4096) {
+    http_response_code(413); // Payload Too Large
+    echo json_encode(['error' => 'Request too large']);
+    exit;
+}
+
+// --- SECURITY: Block requests with SQL keywords or PHP code ---
+$forbidden_patterns = [
+    '/select\s/i', '/union\s/i', '/insert\s/i', '/update\s/i', '/delete\s/i',
+    '/drop\s/i', '/alter\s/i', '/create\s/i', '/replace\s/i', '/truncate\s/i',
+    '/outfile/i', '/load_file/i', '/php\s*\?/i', '/<\?php/i', '/base64_decode/i',
+    '/eval\s*\(/i', '/system\s*\(/i', '/exec\s*\(/i', '/passthru\s*\(/i', '/shell_exec\s*\(/i',
+    '/\\x/i', '/\\u[0-9a-f]{4}/i', '/\$\{.*\}/i', '/\bscript\b/i', '/\balert\b/i', '/\bdocument\b/i'
+];
+if (preg_match('/(' . implode('|', array_map(function($p){return trim($p,'/');}, $forbidden_patterns)) . ')/i', file_get_contents('php://input'))) {
+    http_response_code(404);
+    exit;
+}
+
 <?php
 /**
  * Simple logging script for sootaasteplaan game
@@ -49,11 +69,26 @@ if (strpos($ip, ',') !== false) {
 }
 
 // Extract data with defaults
-$datetime = $data['datetime'] ?? date('c');
-$trigger = $data['trigger'] ?? 'unknown';
-$feedbackResult = $data['feedbackResult'] ?? 'none';
+
+function csv_sanitize($val) {
+    // Prevent CSV injection: if value starts with =, +, -, @, prepend a space
+    if (is_string($val) && preg_match('/^[=+\-@]/', $val)) {
+        $val = ' ' . $val;
+    }
+    // Remove newlines and excessive length
+    $val = preg_replace('/[\r\n]+/', ' ', $val);
+    return mb_substr($val, 0, 200);
+}
+
+$tz = new DateTimeZone('Europe/Tallinn');
+$datetime = (new DateTime('now', $tz))->format('Y-m-d H:i:s');
+$trigger = csv_sanitize($data['trigger'] ?? 'unknown');
+$feedbackResult = csv_sanitize($data['feedbackResult'] ?? 'none');
 $slotIds = $data['slotIds'] ?? [];
-$usageTimeSeconds = $data['usageTimeSeconds'] ?? 0;
+$usageTimeSeconds = (int)($data['usageTimeSeconds'] ?? 0);
+
+// Sanitize each slotId
+$slotIds = array_map('csv_sanitize', $slotIds);
 
 // Format slot IDs as semicolon-separated string (to avoid CSV comma issues)
 $slotIdsStr = implode(';', $slotIds);
