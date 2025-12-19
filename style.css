@@ -37,12 +37,14 @@
   --card-bg: #ffffff;
   --card-shadow: 0 6px 18px rgba(17, 24, 39, 0.08);
   --border-color: #cbd5f5;
-  --primary: #3f51b5;
-  --primary-dark: #2f3e8f;
-  --accent: #ffb74d;
-  --danger: #e53935;
+  --primary: #00385C;
+  --primary-dark: #002753;
+  --accent: #f1c8aa;
+  --danger: #F15921;
   --text: #212121;
   --muted: #666666;
+  --title: #436337;
+  --card-title: #60A44C;
   font-size: 16px;
 }
 
@@ -238,10 +240,10 @@ body {
 }
 
 .arrow-indicator.comm::before {
-  background: var(--accent);
+  background: var(--danger);
 }
 .arrow-indicator.comm::after {
-  border-top-color: var(--accent);
+  border-top-color: var(--danger);
 }
 
 .card {
@@ -280,6 +282,8 @@ body {
   font-family: 'Bogle', Arial, sans-serif;
   font-weight: bold;
   margin: 0 0 0.25rem 0;
+  color: var(--card-title);
+  font-style: italic;
 }
 
 .card .card-subtitle {
@@ -321,7 +325,7 @@ img.modalimg {
   border-radius: 0;
   color: var(--accent); /* used by SVG as currentColor for stroke */
   /* Inline SVG draws a rectangle with a narrow stem and a triangle head */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-51 -15 242 160'><path d='M-33 -15 H183 A8 8 0 0 1 191 -7 V100 A8 8 0 0 1 183 108 H85 V130 H91 L75 145 L59 130 H65 V108 H-33 A8 8 0 0 1 -41 100 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(255,243,224,0.95)' stroke='rgba(255,152,0,1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-51 -15 242 160'><path d='M-33 -15 H183 A8 8 0 0 1 191 -7 V100 A8 8 0 0 1 183 108 H85 V130 H91 L75 145 L59 130 H65 V108 H-33 A8 8 0 0 1 -41 100 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(241, 200, 170, 0.55)' stroke='rgba(241, 89, 33, 1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
   box-shadow: none;
   background-size: 100% 100%;
@@ -334,6 +338,9 @@ img.modalimg {
 .card.special .card-subtitle {
   position: relative;
   z-index: 1;
+}
+.card.special .card-title{
+  color: var(--danger);
 }
 
 .placeholder-slot .card {
@@ -400,7 +407,7 @@ img.modalimg {
 }
 
 .modal-title {
-  color: var(--muted);
+  color: var(--card-title);
   font-style: normal;
   font-family: 'Bogle', Arial, sans-serif;
   font-size: 3rem;
@@ -495,16 +502,17 @@ img.modalimg {
   background: #ffffff;
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-  height: 60px;
+  height: 100px;
   flex-shrink: 0;
 }
 
 .game-title {
   font-size: 3.5rem;
   margin: 0;
-  color: var(--text);
+  color: var(--title);
   font-family: 'Regar Demo', Arial, sans-serif;
   font-weight: normal;
+  text-transform: uppercase;
 }
 
 .top-actions {
@@ -617,7 +625,7 @@ img.modalimg {
   content: "";
   position: absolute;
   right: 16px;
-  bottom: 16px;
+  bottom: -30px;
   width: min(280px, 30%);
   aspect-ratio: 16 / 9; /* keeps correct height without hardcoding */
   background-image: url("assets/images/waterlands.svg");
