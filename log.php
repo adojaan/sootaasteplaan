@@ -1,3 +1,4 @@
+<?php
 // --- SECURITY: Limit POST body size (max 4KB) ---
 if (isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 4096) {
     http_response_code(413); // Payload Too Large
@@ -17,8 +18,6 @@ if (preg_match('/(' . implode('|', array_map(function($p){return trim($p,'/');},
     http_response_code(404);
     exit;
 }
-
-<?php
 /**
  * Simple logging script for sootaasteplaan game
  * Place this file on your remote server and update loggingConfig.endpoint in script.js
