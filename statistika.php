@@ -68,14 +68,38 @@ if (file_exists($csvFile) && is_readable($csvFile)) {
     $handle = fopen($csvFile, 'r');
     $header = fgetcsv($handle);
     while (($row = fgetcsv($handle)) !== false) {
-        // CSV format: datetime, ip, trigger, feedback_result, slot_ids (semicolon-separated), usage_time_seconds
+        // CSV format (variants supported):
+        // Old: "2025-12-19 16:02:48",ip,trigger,feedback_result,slot_ids,usage
+        // New: 2025-12-18T20:22:46.908Z,ip,trigger,feedback_result,slot_ids,usage
         if (count($row) >= 6) {
+            // Skip accidental header rows that may be embedded in the CSV
+            $rawDate = trim($row[0] ?? '');
+            $rawDateLower = strtolower(trim($rawDate, '"'));
+            if ($rawDateLower === 'datetime' || $rawDateLower === '') {
+                continue;
+            }
+
+            // Try to parse various datetime formats into server-local Y-m-d H:i:s
+            $ts = false;
+            // Strip surrounding quotes
+            $rawDate = trim($rawDate, " \t\n\r\"");
+            // Some ISO timestamps contain fractional seconds (milliseconds) before Z
+            // strtotime generally understands ISO8601, but try removing fractional part if needed
+            $ts = @strtotime($rawDate);
+            if ($ts === false) {
+                $isoNoMs = preg_replace('/\.(\d+)(?=Z$)/', '', $rawDate);
+                $ts = @strtotime($isoNoMs);
+            }
+
+            // If parsing succeeded, normalize to server local datetime string, else keep raw
+            $datetime = $ts !== false ? date('Y-m-d H:i:s', $ts) : $rawDate;
+
             // Parse slot_ids from semicolon-separated string
             $slotIdsStr = $row[4] ?? '';
             $slots = $slotIdsStr ? explode(';', $slotIdsStr) : [];
-            
+
             $sessions[] = [
-                'datetime' => $row[0],
+                'datetime' => $datetime,
                 'trigger' => $row[2],
                 'result' => $row[3],
                 'slots' => $slots,
