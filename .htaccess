@@ -1,0 +1,22 @@
+# .htaccess to discourage caching of dynamic pages
+# Place in project root. Some server/proxy configs may still cache; contact admin if caching persists.
+
+<IfModule mod_headers.c>
+  # Prevent caching for dynamic pages
+  <FilesMatch "\.(php|html?|htm)$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+    Header unset ETag
+    FileETag None
+  </FilesMatch>
+
+  # Some servers honor Surrogate-Control / X-Accel-Expires
+  Header set Surrogate-Control "no-store"
+  Header set X-Accel-Expires "0"
+</IfModule>
+
+# Fallback: turn off Expires module if present
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>

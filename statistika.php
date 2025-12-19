@@ -6,6 +6,22 @@
  * Access: https://your-server/statistika.php
  */
 
+// -----------------------------------------------------------------
+// Prevent caching for dynamic statistics page
+// Strong headers for browsers and common proxies (Squid, Varnish, etc.)
+// If an upstream reverse-proxy ignores these, contact the server admin.
+header('Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+header('Surrogate-Control: no-store');
+// Nginx internal accel header
+header('X-Accel-Expires: 0');
+// Make Last-Modified reflect current time so caches must revalidate
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+// Optional: vary by Accept-Encoding to avoid some caches serving compressed blobs wrongly
+header('Vary: Accept-Encoding');
+// -----------------------------------------------------------------
+
 // ============ CONFIGURATION ============
 $csvFile = __DIR__ . '/game_logs.csv';
 $cardIds = [
