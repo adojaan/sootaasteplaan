@@ -23,6 +23,12 @@ header('Vary: Accept-Encoding');
 // -----------------------------------------------------------------
 
 // ============ CONFIGURATION ============
+$tz = 'Europe/Tallinn';
+// Ensure displayed times use local Estonia time (matches `log.php` storage)
+if (function_exists('date_default_timezone_set')) {
+    date_default_timezone_set($tz);
+}
+
 $csvFile = __DIR__ . '/game_logs.csv';
 $cardIds = [
     'tahame_taastada', 'kes_on_omanik', 'mis_on_lugu', 'palju_raha', 'milline_praegu',
