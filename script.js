@@ -819,7 +819,7 @@
 
     // Make original special card blink a few seconds to draw attention
     specialCard.classList.add('blink');
-    const blinkDuration = 2000; // ms
+    const blinkDuration = 3000; // ms (make it blink for ~3s so multiple 0.6s cycles occur)
 
     // Create a clone for the animation
     const clone = specialCard.cloneNode(true);
