@@ -86,7 +86,8 @@ body {
   overflow: hidden;
   flex: 1;
   background-image: url("assets/images/bg3.jpg");
-  background-size: 100%, auto;
+  background-size: cover;
+  background-position: center center;
 }
 
 #placeholder-column {
@@ -652,7 +653,7 @@ img.modalimg {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 12, 18, 0.6);
+  background: rgba(10, 12, 18, 0.35);
   z-index: 9999;
 }
 .welcome-panel {
@@ -668,6 +669,10 @@ img.modalimg {
   font-size: 1.25rem;
   color: var(--card-title);
   margin-top: 0;
+}
+.welcome-panel .welcome-subtitle.juhis {
+  color: var(--card-title);
+  font-weight: 700;
 }
 .welcome-panel .welcome-body {
   margin-bottom: 1rem;
