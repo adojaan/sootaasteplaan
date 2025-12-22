@@ -257,21 +257,23 @@
   console.log('gameData:', gameData);
 
   setupPlaceholders();
-  // Hide game until user starts
-  document.getElementById('game-container').classList.add('hidden');
+  // Hide interactive parts of the game until user starts (keep background visible)
   document.getElementById('cards-container').classList.add('hidden');
+  document.getElementById('placeholder-column').classList.add('hidden');
 
   // Show welcome screen until user clicks Alusta
   function hideWelcome() {
     if (welcomeScreen) welcomeScreen.style.display = 'none';
-    document.getElementById('game-container').classList.remove('hidden');
+    // Reveal interactive areas (keep game container visible so background shows)
     document.getElementById('cards-container').classList.remove('hidden');
+    document.getElementById('placeholder-column').classList.remove('hidden');
   }
 
   function showWelcome() {
     if (welcomeScreen) welcomeScreen.style.display = 'flex';
-    document.getElementById('game-container').classList.add('hidden');
+    // Hide interactive areas but keep the main container (and its background) visible
     document.getElementById('cards-container').classList.add('hidden');
+    document.getElementById('placeholder-column').classList.add('hidden');
   }
 
   if (startBtn) {
@@ -815,6 +817,10 @@
     const cardRect = specialCard.getBoundingClientRect();
     const arrowRect = arrow.getBoundingClientRect();
 
+    // Make original special card blink a few seconds to draw attention
+    specialCard.classList.add('blink');
+    const blinkDuration = 2000; // ms
+
     // Create a clone for the animation
     const clone = specialCard.cloneNode(true);
     clone.style.position = 'fixed';
@@ -825,7 +831,8 @@
     clone.style.margin = '0';
     clone.style.zIndex = '9999';
     clone.style.pointerEvents = 'none';
-    clone.style.transition = 'all 0.5s ease-in-out';
+    // Slow down the flying animation for visibility
+    clone.style.transition = 'all 1.2s ease-in-out';
     clone.style.transformOrigin = 'center center';
     document.body.appendChild(clone);
 
@@ -842,21 +849,30 @@
     });
 
     // Clean up after animation
+    const cleanup = () => {
+      clone.remove();
+      specialCard.classList.remove('blink');
+      onComplete();
+    };
+
     clone.addEventListener('transitionend', function handler(e) {
       if (e.propertyName === 'transform') {
         clone.removeEventListener('transitionend', handler);
-        clone.remove();
-        onComplete();
+        cleanup();
       }
     });
 
     // Fallback in case transitionend doesn't fire
     setTimeout(() => {
       if (clone.parentNode) {
-        clone.remove();
-        onComplete();
+        cleanup();
       }
-    }, 600);
+    }, 1400);
+
+    // Ensure blink stops after a bit
+    setTimeout(() => {
+      specialCard.classList.remove('blink');
+    }, blinkDuration);
   }
 
   function snapToPoolPosition(card) {
