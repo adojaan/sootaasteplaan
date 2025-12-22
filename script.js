@@ -174,6 +174,10 @@
   const inactivityModal = document.getElementById('inactivity-modal');
   const resetModal = document.getElementById('reset-modal');
 
+  // Welcome / start screen
+  const welcomeScreen = document.getElementById('welcome-screen');
+  const startBtn = document.getElementById('start-btn');
+
   const infoTitleEl = document.getElementById('info-modal-title');
   const infoSubtitleEl = document.getElementById('info-modal-subtitle');
   const infoBodyEl = document.getElementById('info-modal-body');
@@ -251,9 +255,34 @@
 
   console.log('Script loaded');
   console.log('gameData:', gameData);
-  
+
   setupPlaceholders();
-  initializeGame();
+  // Hide game until user starts
+  document.getElementById('game-container').classList.add('hidden');
+  document.getElementById('cards-container').classList.add('hidden');
+
+  // Show welcome screen until user clicks Alusta
+  function hideWelcome() {
+    if (welcomeScreen) welcomeScreen.style.display = 'none';
+    document.getElementById('game-container').classList.remove('hidden');
+    document.getElementById('cards-container').classList.remove('hidden');
+  }
+
+  function showWelcome() {
+    if (welcomeScreen) welcomeScreen.style.display = 'flex';
+    document.getElementById('game-container').classList.add('hidden');
+    document.getElementById('cards-container').classList.add('hidden');
+  }
+
+  if (startBtn) {
+    startBtn.addEventListener('click', () => {
+      hideWelcome();
+      initializeGame();
+    });
+  } else {
+    // Fallback: if no start button, initialize immediately
+    initializeGame();
+  }
 
   // Debug helper: expose test functions to console
   window.testGame = {
@@ -1047,6 +1076,8 @@
     state.firstInteractionTime = null;
     state.lastFeedbackResult = null;
     registerActivity();
+    // After resetting, show the welcome/start screen again
+    showWelcome();
   }
 
   function registerActivity() {

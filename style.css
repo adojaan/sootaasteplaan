@@ -640,6 +640,44 @@ img.modalimg {
 /* Ensure cards are painted above the decorative image */
 .card { z-index: 5; }
 
+/* Hide game areas when welcome screen active */
+#game-container.hidden, #cards-container.hidden {
+  display: none !important;
+}
+
+/* Welcome / initial screen */
+.welcome-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 12, 18, 0.6);
+  z-index: 9999;
+}
+.welcome-panel {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 980px;
+  width: calc(100% - 3rem);
+  box-shadow: 0 30px 60px rgba(2,6,23,0.4);
+  text-align: left;
+}
+.welcome-panel .welcome-subtitle {
+  font-size: 1.25rem;
+  color: var(--card-title);
+  margin-top: 0;
+}
+.welcome-panel .welcome-body {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+.welcome-panel .modal-actions { justify-content: center; margin-top: 1rem; }
+
+
 @media (max-width: 1100px) {
   #cards-container::after {
     right: 12px;
