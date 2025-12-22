@@ -861,22 +861,18 @@
       onComplete();
     };
 
-    clone.addEventListener('transitionend', function handler(e) {
-      if (e.propertyName === 'transform') {
-        clone.removeEventListener('transitionend', handler);
-        // Keep the clone visible for a short pause after arrival
-        setTimeout(() => {
-          cleanup();
-        }, 500); // 0.5s pause at destination
-      }
-    });
+    // Use a deterministic timeout for cleanup: transition duration + pause + small buffer
+    // This avoids flaky `transitionend` timing on some browsers/layouts.
+    const transitionMs = 1200; // matches transition: 1.2s
+    const pauseMs = 500; // keep clone visible at destination
+    const bufferMs = 80; // safety buffer
+    const totalMs = transitionMs + pauseMs + bufferMs;
 
-    // Fallback in case transitionend doesn't fire — allow transition + pause
     setTimeout(() => {
       if (clone.parentNode) {
         cleanup();
       }
-    }, 2000);
+    }, totalMs);
 
     // Ensure blink stops after a bit
     setTimeout(() => {
