@@ -222,11 +222,13 @@
     resetGame();
   });
 
-  confirmBtn.addEventListener('click', () => {
-    if (!confirmBtn.disabled) {
-      openModal(confirmModal);
-    }
-  });
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (!confirmBtn.disabled) {
+        openModal(confirmModal);
+      }
+    });
+  }
 
   document.querySelectorAll('[data-close]').forEach((btn) => {
     btn.addEventListener('click', (event) => {
@@ -913,7 +915,7 @@
 
   function checkCompletion() {
     const allFilled = placeholders.every((slot) => slot.dataset.cardId);
-    confirmBtn.disabled = !allFilled;
+    if (confirmBtn) confirmBtn.disabled = !allFilled;
 
     if (allFilled && !state.previouslyComplete) {
       state.previouslyComplete = true;
@@ -1090,7 +1092,7 @@
       i++;
     });
 
-    confirmBtn.disabled = true;
+    if (confirmBtn) confirmBtn.disabled = true;
     state.previouslyComplete = false;
     state.hasInteracted = false;
     state.firstInteractionTime = null;
