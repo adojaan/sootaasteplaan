@@ -851,7 +851,7 @@
       clone.style.left = `${targetX}px`;
       clone.style.top = `${targetY}px`;
       clone.style.transform = 'scale(0.1)';
-      clone.style.opacity = '0.3';
+      clone.style.opacity = '0.5';
     }, 20);
 
     // Clean up after animation
@@ -864,16 +864,19 @@
     clone.addEventListener('transitionend', function handler(e) {
       if (e.propertyName === 'transform') {
         clone.removeEventListener('transitionend', handler);
-        cleanup();
+        // Keep the clone visible for a short pause after arrival
+        setTimeout(() => {
+          cleanup();
+        }, 500); // 0.5s pause at destination
       }
     });
 
-    // Fallback in case transitionend doesn't fire
+    // Fallback in case transitionend doesn't fire — allow transition + pause
     setTimeout(() => {
       if (clone.parentNode) {
         cleanup();
       }
-    }, 1400);
+    }, 2000);
 
     // Ensure blink stops after a bit
     setTimeout(() => {
