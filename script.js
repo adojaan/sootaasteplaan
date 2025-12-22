@@ -831,22 +831,26 @@
     clone.style.margin = '0';
     clone.style.zIndex = '9999';
     clone.style.pointerEvents = 'none';
-    // Slow down the flying animation for visibility
-    clone.style.transition = 'all 1.2s ease-in-out';
+    // Use explicit transitions for more reliable mobile/portrait behavior
+    clone.style.transition = 'left 1.2s ease-in-out, top 1.2s ease-in-out, transform 1.2s ease-in-out, opacity 1.2s ease-in-out';
     clone.style.transformOrigin = 'center center';
+    clone.style.willChange = 'left, top, transform, opacity';
     document.body.appendChild(clone);
 
     // Calculate target position (center of arrow)
     const targetX = arrowRect.left + arrowRect.width / 2 - cardRect.width / 2;
     const targetY = arrowRect.top + arrowRect.height / 2 - cardRect.height / 2;
 
-    // Trigger animation on next frame
-    requestAnimationFrame(() => {
+    // Force reflow to ensure the starting position is registered (avoids instant jumps on some layouts)
+    clone.getBoundingClientRect();
+
+    // Start animation shortly after reflow
+    setTimeout(() => {
       clone.style.left = `${targetX}px`;
       clone.style.top = `${targetY}px`;
       clone.style.transform = 'scale(0.1)';
       clone.style.opacity = '0.3';
-    });
+    }, 20);
 
     // Clean up after animation
     const cleanup = () => {
