@@ -209,6 +209,15 @@
       resetGame();
     });
 
+  // Handler for "Tagasi algusse" button in completion modal (info-modal)
+  document
+    .getElementById('info-restart')
+    .addEventListener('click', () => {
+      // resetGame() will handle sending statistics if completionModalOpen is true
+      // Just call resetGame which handles everything
+      resetGame();
+    });
+
   document
     .getElementById('inactivity-continue')
     .addEventListener('click', () => {
@@ -476,8 +485,17 @@
     cardsContainer.innerHTML = '';
     state.cards.clear();
 
+    // Filter out special card - it will only be shown as modal on completion
+    const visibleElements = elements.filter(element => !element.special);
+    
+    // Store special card data for later use in completion animation
+    const specialElement = elements.find(element => element.special);
+    if (specialElement) {
+      state.specialCardData = specialElement;
+    }
+
     // Scatter cards randomly, avoiding overlap
-    const cardCount = elements.length;
+    const cardCount = visibleElements.length;
     const padding = 24;
     const containerW = Math.max(cardsContainer.clientWidth, 600);
     const containerH = Math.max(cardsContainer.clientHeight, 520);
@@ -485,7 +503,7 @@
     const cardH = 110;
     const minDist = 40; // Minimum distance between card centers
     const placed = [];
-    elements.forEach((element) => {
+    visibleElements.forEach((element) => {
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.id = element.id;
@@ -1109,110 +1127,120 @@
     });
   }
 
-  function animateSpecialCardToAllArrows(onComplete) {
-    // Find the special card (suhtlus)
-    const specialEntry = Array.from(state.cards.values()).find(
-      (entry) => entry.element.special
-    );
-    if (!specialEntry) {
+  function showCompletionModalAndAnimateArrows(onComplete) {
+    // Get the special card data (communication card)
+    const specialElement = state.specialCardData;
+    if (!specialElement) {
       onComplete();
       return;
     }
 
-    const specialCard = specialEntry.node;
-    const cardRect = specialCard.getBoundingClientRect();
+    // Show the info modal with special card content
+    infoTitleEl.textContent = specialElement.title;
+    infoSubtitleEl.textContent = specialElement.subtitle;
+    infoBodyEl.innerHTML = specialElement.info;
+    
+    // Show the restart button in info modal for completion
+    const infoModalActions = document.getElementById('info-modal-actions');
+    if (infoModalActions) {
+      infoModalActions.style.display = 'flex';
+    }
+    
+    // Hide the close button during completion
+    const closeBtn = infoModal.querySelector('.close-btn');
+    if (closeBtn) {
+      closeBtn.style.display = 'none';
+    }
+    
+    openModal(infoModal);
+    
+    // Store that this is completion modal (so we can close it on reset)
+    state.completionModalOpen = true;
+    
+    // Store the completion callback for later use
+    state.completionCallback = onComplete;
 
-    // First, move special card to center of screen and blink
-    const clone = specialCard.cloneNode(true);
-    clone.style.position = 'fixed';
-    clone.style.left = `${cardRect.left}px`;
-    clone.style.top = `${cardRect.top}px`;
-    clone.style.width = `${cardRect.width}px`;
-    clone.style.height = `${cardRect.height}px`;
-    clone.style.margin = '0';
-    clone.style.zIndex = '9999';
-    clone.style.pointerEvents = 'none';
-    clone.style.transition = 'left 0.8s ease-in-out, top 0.8s ease-in-out';
-    clone.style.transformOrigin = 'center center';
-    document.body.appendChild(clone);
-
-    // Hide original card
-    specialCard.style.visibility = 'hidden';
-
-    // Calculate center of screen
-    const centerX = (window.innerWidth - cardRect.width) / 2;
-    const centerY = (window.innerHeight - cardRect.height) / 2;
-
-    // Move to center
-    requestAnimationFrame(() => {
-      clone.style.left = `${centerX}px`;
-      clone.style.top = `${centerY}px`;
+    // Apply comm class to all active arrows immediately (no flying animation)
+    const activeArrows = arrows.filter(arrow => arrow.classList.contains('active'));
+    activeArrows.forEach((arrow) => {
+      arrow.classList.add('comm');
     });
 
-    // After moving to center, start blinking for 3 seconds
+    /* COMMENTED OUT: Flying arrow animation - may restore later
+    // After 4 seconds of displaying the modal, start the arrow animation
     setTimeout(() => {
-      clone.classList.add('center-blink');
-      
-      // After 3 seconds of blinking, animate to all arrows
-      setTimeout(() => {
-        clone.classList.remove('center-blink');
+      // Get the modal position for arrow origin
+      const modalContent = infoModal.querySelector('.modal-content');
+      const modalRect = modalContent.getBoundingClientRect();
+      const modalCenterX = modalRect.left + modalRect.width / 2;
+      const modalBottom = modalRect.bottom;
+
+      // Get all active arrows (arrows between filled slots)
+      const activeArrows = arrows.filter(arrow => arrow.classList.contains('active'));
+
+      // Create animated arrows for each target
+      activeArrows.forEach((targetArrow, index) => {
+        const arrowRect = targetArrow.getBoundingClientRect();
         
-        // Get the current position of the centered clone
-        const centeredRect = clone.getBoundingClientRect();
-        
-        // Create clones for each arrow and animate them simultaneously
-        const activeArrows = arrows.filter(arrow => arrow.classList.contains('active'));
-        
-        activeArrows.forEach((arrow, index) => {
-          const arrowRect = arrow.getBoundingClientRect();
-          const arrowClone = clone.cloneNode(true);
-          
-          arrowClone.style.position = 'fixed';
-          arrowClone.style.left = `${centeredRect.left}px`;
-          arrowClone.style.top = `${centeredRect.top}px`;
-          arrowClone.style.width = `${centeredRect.width}px`;
-          arrowClone.style.height = `${centeredRect.height}px`;
-          arrowClone.style.margin = '0';
-          arrowClone.style.zIndex = '9998';
-          arrowClone.style.pointerEvents = 'none';
-          arrowClone.style.transition = 'left 1s ease-in-out, top 1s ease-in-out, transform 1s ease-in-out, opacity 1s ease-in-out';
-          arrowClone.style.transformOrigin = 'center center';
-          arrowClone.style.willChange = 'left, top, transform, opacity';
-          document.body.appendChild(arrowClone);
+        // Create a simple downward arrow element
+        const animatedArrow = document.createElement('div');
+        animatedArrow.className = 'flying-arrow';
+        animatedArrow.innerHTML = '↓';
+        animatedArrow.style.position = 'fixed';
+        animatedArrow.style.left = `${modalCenterX - 15}px`;
+        animatedArrow.style.top = `${modalBottom + 10}px`;
+        animatedArrow.style.fontSize = '30px';
+        animatedArrow.style.color = '#e67e22';
+        animatedArrow.style.fontWeight = 'bold';
+        animatedArrow.style.zIndex = '10000';
+        animatedArrow.style.pointerEvents = 'none';
+        animatedArrow.style.opacity = '1';
+        animatedArrow.style.transition = 'left 1.2s ease-in-out, top 1.2s ease-in-out, opacity 0.3s ease-in-out';
+        animatedArrow.style.willChange = 'left, top, opacity';
+        animatedArrow.style.textShadow = '0 2px 4px rgba(0,0,0,0.3)';
+        document.body.appendChild(animatedArrow);
 
-          // Calculate target position (center of arrow)
-          const targetX = arrowRect.left + arrowRect.width / 2 - centeredRect.width / 2;
-          const targetY = arrowRect.top + arrowRect.height / 2 - centeredRect.height / 2;
+        // Force reflow
+        animatedArrow.getBoundingClientRect();
 
-          // Force reflow
-          arrowClone.getBoundingClientRect();
+        // Calculate target position (center of the arrow indicator)
+        const targetX = arrowRect.left + arrowRect.width / 2 - 15;
+        const targetY = arrowRect.top + arrowRect.height / 2 - 15;
 
-          // Animate to arrow with slight delay based on index for visual effect
-          setTimeout(() => {
-            arrowClone.style.left = `${targetX}px`;
-            arrowClone.style.top = `${targetY}px`;
-            arrowClone.style.transform = 'scale(0.15)';
-            arrowClone.style.opacity = '0.6';
-          }, index * 50);
-
-          // Apply comm class to arrow and remove clone after animation
-          setTimeout(() => {
-            arrow.classList.add('comm');
-            arrowClone.remove();
-          }, 1200 + index * 50);
-        });
-
-        // Remove the centered clone
-        clone.remove();
-
-        // Call completion callback after all animations done
+        // Animate to arrow with slight delay based on index for visual effect
         setTimeout(() => {
-          specialCard.style.visibility = 'visible';
-          onComplete();
-        }, 1500);
-        
-      }, 3000); // 3 seconds of blinking
-    }, 800); // Wait for move to center
+          animatedArrow.style.left = `${targetX}px`;
+          animatedArrow.style.top = `${targetY}px`;
+        }, index * 100);
+
+        // Apply comm class to arrow and remove animated element after animation
+        setTimeout(() => {
+          targetArrow.classList.add('comm');
+          animatedArrow.style.opacity = '0';
+        }, 1400 + index * 100);
+
+        // Remove the element after fade out
+        setTimeout(() => {
+          animatedArrow.remove();
+        }, 1700 + index * 100);
+      });
+
+      // Close the modal and call completion callback after all animations done
+      setTimeout(() => {
+        closeModal(infoModal);
+        state.completionModalOpen = false;
+        onComplete();
+      }, 2000 + activeArrows.length * 100);
+      
+    }, 4000); // 4 seconds of displaying modal before animation
+    */
+    
+    // Modal stays open - user must click "Tagasi algusse" button or inactivity reset
+  }
+
+  // Keep old function names for backwards compatibility
+  function animateSpecialCardToAllArrows(onComplete) {
+    showCompletionModalAndAnimateArrows(onComplete);
   }
 
   // Keep old function for backwards compatibility but redirect to new one
@@ -1265,13 +1293,11 @@
       state.gameCompleted = true;
       state.lastFeedbackResult = 'correct';
       
-      // Trigger the final special card animation
+      // Trigger the completion modal (communication card info)
+      // Statistics will be sent when user clicks "Tagasi algusse" or on inactivity reset
       setTimeout(() => {
         animateSpecialCardToAllArrows(() => {
-          // After animation completes, send log and show completion message
-          sendLog('confirm');
-          // feedbackMessageEl.textContent = state.data.feedback.correct || 'Correct!';
-          openModal(feedbackModal);
+          // Callback no longer used - modal stays open until button click
         });
       }, 500);
     }
@@ -1392,12 +1418,33 @@
   }
 
   function resetGame() {
+    // Send statistics if game was completed (completion modal was open)
+    if (state.completionModalOpen) {
+      sendLog('confirm');
+    }
+    
     closeModal(confirmModal);
     closeModal(feedbackModal);
     closeModal(inactivityModal);
     closeModal(resetModal);
+    closeModal(infoModal); // Close info modal if open (e.g., during completion animation)
+    
+    // Reset info modal state (hide restart button, show close button)
+    const infoModalActions = document.getElementById('info-modal-actions');
+    if (infoModalActions) {
+      infoModalActions.style.display = 'none';
+    }
+    const closeBtn = infoModal.querySelector('.close-btn');
+    if (closeBtn) {
+      closeBtn.style.display = '';
+    }
+    
+    state.completionModalOpen = false; // Reset completion modal state
     clearTimeout(state.inactivityGraceTimer);
     state.inactivityGraceTimer = null;
+    
+    // Remove any flying arrows that might be in progress
+    document.querySelectorAll('.flying-arrow').forEach(arrow => arrow.remove());
 
     placeholders.forEach((slot, index) => {
       const card = slot.querySelector('.card');

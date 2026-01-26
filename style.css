@@ -320,18 +320,36 @@ img.modalimg {
 
 /* Special card styled as a block arrow pointing downward */
 .card.special {
-  border: none; /* we draw our own dashed outline in the SVG */
-  background: transparent;
-  width: 260px;
-  border-radius: 0;
-  color: var(--accent); /* used by SVG as currentColor for stroke */
-  /* Inline SVG draws a rectangle with a narrow stem and a triangle head */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-51 -15 242 160'><path d='M-33 -15 H183 A8 8 0 0 1 191 -7 V100 A8 8 0 0 1 183 108 H85 V130 H91 L75 145 L59 130 H65 V108 H-33 A8 8 0 0 1 -41 100 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(241, 200, 170, 0.55)' stroke='rgba(241, 89, 33, 1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>");
-  background-repeat: no-repeat;
-  box-shadow: none;
-  background-size: 100% 100%;
-  /* keep text clear of the arrow stem/head */
-  padding: 1.2rem 1.6rem 3.6rem 1.6rem;
+  /* Override default card styles */
+  border: 2px solid var(--danger);
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  
+  /* Dimensions */
+  width: 300px;
+  min-height: 110px;
+  
+  /* Positioning and interaction */
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  
+  /* Spacing */
+  padding: 1.2rem 1.2rem 1.4rem 1.2rem;
+  
+  /* Transitions */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  /* Color reference for potential SVG use */
+  color: var(--accent);
+  
+  /* Alternative SVG arrow background (commented out) */
+  /* background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-51 -15 242 160'><path d='M-33 -15 H183 A8 8 0 0 1 191 -7 V100 A8 8 0 0 1 183 108 H85 V130 H91 L75 145 L59 130 H65 V108 H-33 A8 8 0 0 1 -41 100 V-7 A8 8 0 0 1 -33 -15 Z' fill='rgba(241, 200, 170, 0.55)' stroke='rgba(241, 89, 33, 1)' stroke-width='2' stroke-dasharray='3,3' stroke-linejoin='round' stroke-linecap='round'/></svg>"); */
+  /* background-repeat: no-repeat; */
+  /* background-size: 100% 100%; */
+  /* padding: 1.2rem 1.6rem 3.6rem 1.6rem; */ /* Extra bottom padding for arrow stem/head */
 }
 
 /* Ensure text stays readable within clipped shape */
@@ -622,21 +640,23 @@ img.modalimg {
 
 
 /* Decorative image in bottom-right of cards area */
+/* 
 #cards-container::after {
-  /* content: "";
+  content: "";
   position: absolute;
   right: 16px;
   bottom: -30px;
   width: min(280px, 30%);
-  aspect-ratio: 16 / 9; /* keeps correct height without hardcoding */
+  aspect-ratio: 16 / 9;
   background-image: url("assets/images/waterlands.svg");
   background-repeat: no-repeat;
   background-size: contain;
   opacity: 0.95;
   pointer-events: none;
   z-index: -10;
-  transform: translateZ(0); */
+  transform: translateZ(0);
 }
+*/
 
 /* Ensure cards are painted above the decorative image */
 .card { z-index: 5; }
@@ -809,6 +829,15 @@ img.modalimg {
     transform: scale(1.05);
     opacity: 0.7;
   }
+}
+
+/* ============ FLYING ARROW ANIMATION ============ */
+.flying-arrow {
+  font-size: 30px;
+  color: #e67e22;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  filter: drop-shadow(0 2px 4px rgba(230, 126, 34, 0.5));
 }
 
 
