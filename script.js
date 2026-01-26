@@ -54,9 +54,9 @@
     },
     {
       "id": "suhtlus",
-      "title": "Mida inimesed arvavad?",
-      "subtitle": "Tehke koostööd ja suhelge erinevate huvigruppidega, keda taastamistööd vahetult mõjutavad.",
-      "info": "<img align='right' src='assets/images/6v1.jpg' class='modalimg'><p>Otsuse, kas üldse taastada või mitte, peaks üldjuhul tegema maaomanik. Samas tuleb taastamistööde juures arvestada paljude huvigruppide esindajate kogemuse, teadmiste ning arvamusega. Inimeste kaasamiseks on palju erinevaid viise - alates koosolekutest, küsitlusuuringutest, üks-ühele vestluste ja matkadeni, õppepäevadest talguteni, seminaridest veebihääletusteni.</p><p>Isegi kui kõik inimesed ei ole taastamise poolt, aitab suhtlemine välja selgitada nende soove, millega saab taastamistöödel arvestada - millised kraavid, teed, kohad maastikul on eriliselt olulised ja mille kasutusmugavus peaks säilima jmt).</p><p>Oluline on pidev suhtlus erinevate osapooltega kogu taastamistegevuse jooksul.</p><p>Pane see kaart noolte peale, et rõhutada, milliste sammude vahel on suhtlus eriti oluline. Saad seda rakendada mitme noole puhul.</p>",
+      "title": "Ära unusta mõttevahetust!",
+      "subtitle": "Suhelge ja tehke koostööd erinevate huvigruppidega, keda taastamistööd vahetult mõjutavad.",
+      "info": "<img align='right' src='assets/images/6v1.jpg' class='modalimg'><p>Taastamistööde juures tuleb arvestada paljude huvigruppide kogemuste, teadmiste ning arvamustega. Kaasamiseks on palju erinevaid viise – alates koosolekutest, küsitlusuuringutest, üks-ühele vestluste ja matkadeni, õppepäevadest talguteni, seminaridest veebihääletusteni. Isegi kui kõik ei ole taastamise poolt, aitab suhtlemine välja selgitada erinevaid soove ja vajadusi, millega taastamistöödel arvestada, näiteks millised kraavid, teed ja kohad maastikul on eriliselt olulised ning mille senine kasutusviis peaks säilima. Oluline on pidev suhtlus erinevate osapooltega kogu taastamistegevuse jooksul. </p>",
       "special": true
     },
     {
@@ -140,7 +140,13 @@
   "feedback": {
     "correct": "Tundub, et oled soode taastamisega lähemalt kokku puutunud.",
     "partial": "Nuputa pisut veel, kas neid tegevusi on ikka võimalik teha sellises järjekorras.",
-    "incorrect": "Proovi veel."
+    "incorrect": "Proovi veel.",
+    "wrongDrop": [
+      "Kisub väheke rappa",
+      "Uups! See läks veidi metsa",
+      "Mitte päris nii…",
+      "Proovi uuesti!"
+    ]
   }
 };
 
@@ -165,7 +171,10 @@
     previouslyComplete: false,
     hasInteracted: false,
     firstInteractionTime: null,
-    lastFeedbackResult: null
+    lastFeedbackResult: null,
+    screensaverInterval: null,
+    gameCompleted: false,
+    welcomeInactivityTimer: null
   };
 
   const infoModal = document.getElementById('info-modal');
@@ -173,6 +182,11 @@
   const feedbackModal = document.getElementById('feedback-modal');
   const inactivityModal = document.getElementById('inactivity-modal');
   const resetModal = document.getElementById('reset-modal');
+  const feedbackToast = document.getElementById('feedback-toast');
+
+  // Screensaver elements
+  const screensaver = document.getElementById('screensaver');
+  const screensaverTitle = document.getElementById('screensaver-title');
 
   // Welcome / start screen
   const welcomeScreen = document.getElementById('welcome-screen');
@@ -185,7 +199,7 @@
 
   document.getElementById('confirm-order').addEventListener('click', () => {
     closeModal(confirmModal);
-    evaluateSequence();
+    // No longer used for evaluation - game now evaluates each drop
   });
 
   document
@@ -244,6 +258,8 @@
     'pointerdown',
     () => {
       registerActivity();
+      resetWelcomeInactivityIfOnWelcome();
+      dismissScreensaver();
     },
     true
   );
@@ -251,9 +267,36 @@
     'keydown',
     () => {
       registerActivity();
+      resetWelcomeInactivityIfOnWelcome();
+      dismissScreensaver();
     },
     true
   );
+  
+  // Dismiss screensaver on mouse movement, but only after a short delay
+  // to prevent accidental dismissal on page load
+  let screensaverReady = false;
+  setTimeout(() => {
+    screensaverReady = true;
+  }, 500);
+  
+  document.addEventListener(
+    'mousemove',
+    () => {
+      if (screensaverReady) {
+        dismissScreensaver();
+        resetWelcomeInactivityIfOnWelcome();
+      }
+    },
+    true
+  );
+
+  // Helper to reset welcome inactivity timer if user is on welcome screen
+  function resetWelcomeInactivityIfOnWelcome() {
+    if (welcomeScreen && welcomeScreen.getAttribute('aria-hidden') === 'false') {
+      startWelcomeInactivityTimer();
+    }
+  }
 
   console.log('Script loaded');
   console.log('gameData:', gameData);
@@ -263,20 +306,100 @@
   document.getElementById('cards-container').classList.add('hidden');
   document.getElementById('placeholder-column').classList.add('hidden');
 
+  // ============ SCREENSAVER FUNCTIONS ============
+  function initScreensaver() {
+    screensaver.setAttribute('aria-hidden', 'false');
+    screensaver.style.display = 'flex';
+    positionScreensaverTitle();
+    // Change position every 10 seconds
+    state.screensaverInterval = setInterval(() => {
+      fadeAndRepositionTitle();
+    }, 10000);
+  }
+
+  function positionScreensaverTitle() {
+    const padding = 50;
+    const maxX = window.innerWidth - screensaverTitle.offsetWidth - padding;
+    const maxY = window.innerHeight - screensaverTitle.offsetHeight - padding;
+    const x = Math.random() * Math.max(maxX, padding) + padding / 2;
+    const y = Math.random() * Math.max(maxY, padding) + padding / 2;
+    screensaverTitle.style.left = `${x}px`;
+    screensaverTitle.style.top = `${y}px`;
+  }
+
+  function fadeAndRepositionTitle() {
+    screensaverTitle.classList.add('fade-out');
+    setTimeout(() => {
+      positionScreensaverTitle();
+      screensaverTitle.classList.remove('fade-out');
+    }, 1000); // Wait for fade out, then reposition and fade in
+  }
+
+  function dismissScreensaver() {
+    if (screensaver.getAttribute('aria-hidden') === 'true') return;
+    clearInterval(state.screensaverInterval);
+    state.screensaverInterval = null;
+    screensaver.setAttribute('aria-hidden', 'true');
+    screensaver.style.display = 'none';
+    showWelcome();
+  }
+
+  function showScreensaver() {
+    // Clear welcome inactivity timer if running
+    clearWelcomeInactivityTimer();
+    // Hide welcome screen if visible
+    if (welcomeScreen) {
+      welcomeScreen.setAttribute('aria-hidden', 'true');
+      welcomeScreen.style.display = 'none';
+    }
+    // Hide game areas
+    document.getElementById('cards-container').classList.add('hidden');
+    document.getElementById('placeholder-column').classList.add('hidden');
+    initScreensaver();
+  }
+  // ================================================
+
   // Show welcome screen until user clicks Alusta
   function hideWelcome() {
-    if (welcomeScreen) welcomeScreen.style.display = 'none';
+    clearWelcomeInactivityTimer();
+    if (welcomeScreen) {
+      welcomeScreen.setAttribute('aria-hidden', 'true');
+      welcomeScreen.style.display = 'none';
+    }
     // Reveal interactive areas (keep game container visible so background shows)
     document.getElementById('cards-container').classList.remove('hidden');
     document.getElementById('placeholder-column').classList.remove('hidden');
   }
 
   function showWelcome() {
-    if (welcomeScreen) welcomeScreen.style.display = 'flex';
+    if (welcomeScreen) {
+      welcomeScreen.setAttribute('aria-hidden', 'false');
+      welcomeScreen.style.display = 'flex';
+    }
     // Hide interactive areas but keep the main container (and its background) visible
     document.getElementById('cards-container').classList.add('hidden');
     document.getElementById('placeholder-column').classList.add('hidden');
+    // Start welcome screen inactivity timer - return to screensaver after 60 seconds
+    startWelcomeInactivityTimer();
   }
+
+  function startWelcomeInactivityTimer() {
+    clearTimeout(state.welcomeInactivityTimer);
+    state.welcomeInactivityTimer = setTimeout(() => {
+      // If still on welcome screen, go back to screensaver
+      if (welcomeScreen && welcomeScreen.getAttribute('aria-hidden') === 'false') {
+        showScreensaver();
+      }
+    }, 60000); // 60 seconds
+  }
+
+  function clearWelcomeInactivityTimer() {
+    clearTimeout(state.welcomeInactivityTimer);
+    state.welcomeInactivityTimer = null;
+  }
+
+  // Initialize screensaver on page load
+  initScreensaver();
 
   if (startBtn) {
     startBtn.addEventListener('click', () => {
@@ -290,42 +413,47 @@
 
   // Debug helper: expose test functions to console
   window.testGame = {
-    // Place a card by id into a slot by index (0-based)
+    // Place a card by id into a slot by index (0-based) - bypasses validation for testing only
     placeCard: (cardId, slotIndex) => {
       const cardEntry = state.cards.get(cardId);
       if (!cardEntry) {
         console.error('Card not found:', cardId);
-        return;
+        return false;
       }
       placeCardInSlot(cardEntry.node, slotIndex);
-      checkCompletion();
+      return true;
     },
-    // Place all cards in a specific order (array of card ids)
-    placeAll: (cardIds) => {
-      cardIds.forEach((id, index) => {
-        if (id) window.testGame.placeCard(id, index);
-      });
-    },
-    // Test correct order
+    // Test correct order - places all cards in correct positions sequentially
     testCorrect: () => {
-      window.testGame.placeAll([
+      const correctOrder = [
         'tahame_taastada', 'kes_on_omanik', 'mis_on_lugu', 'palju_raha', 'milline_praegu',
         'arvuti_mudel', 'taastamiskava', 'ehitusprojekt', 'teoks_tegemine', 'jarelevalve'
-      ]);
-    },
-    // Test with 1-2 mistakes (partial)
-    testPartial: () => {
-      window.testGame.placeAll([
-        'tahame_taastada', 'kes_on_omanik', 'mis_on_lugu', 'palju_raha', 'milline_praegu',
-        'taastamiskava', 'arvuti_mudel', 'teoks_tegemine', 'ehitusprojekt', 'jarelevalve'
-      ]);
+      ];
+      correctOrder.forEach((id, index) => {
+        window.testGame.placeCard(id, index);
+      });
+      // Trigger completion check after all cards placed
+      checkCompletion();
     },
     // Reset the game
     reset: () => resetGame(),
-    // Trigger evaluation
-    evaluate: () => evaluateSequence()
+    // Show screensaver
+    showScreensaver: () => showScreensaver(),
+    // Trigger final animation manually (for testing)
+    triggerFinalAnimation: () => {
+      animateSpecialCardToAllArrows(() => {
+        console.log('Final animation complete');
+        sendLog('confirm');
+        // feedbackMessageEl.textContent = state.data.feedback.correct || 'Correct!';
+        openModal(feedbackModal);
+      });
+    },
+    // Get current slot contents
+    getSlots: () => {
+      return placeholders.map((slot, i) => ({ index: i, cardId: slot.dataset.cardId || null }));
+    }
   };
-  console.log('Test helpers available: testGame.testCorrect(), testGame.testPartial(), testGame.reset(), testGame.evaluate()');
+  console.log('Test helpers: testGame.testCorrect(), testGame.reset(), testGame.showScreensaver(), testGame.triggerFinalAnimation(), testGame.getSlots()');
 
   function setupPlaceholders() {
     console.log('setupPlaceholders called, placeholders:', placeholders.length);
@@ -648,7 +776,11 @@
 
     let dropped = false;
 
-    if (!isSpecial && slotTarget) {
+    // Special card cannot be dropped anywhere - it animates automatically after completion
+    if (isSpecial) {
+      snapToPoolPosition(card);
+      dropped = true;
+    } else if (slotTarget) {
       const targetIndex = parseInt(slotTarget.dataset.index, 10);
       if (Number.isInteger(targetIndex)) {
         const slotFilled = Boolean(slotTarget.dataset.cardId);
@@ -663,17 +795,18 @@
             placeCardInSlot(card, targetIndex);
             placeCardInSlot(occupant, originSlotIndex);
             dropped = true;
+            // Validate both positions after swap
+            validateDropPosition(card, targetIndex);
+            validateDropPosition(occupant, originSlotIndex);
           }
         } else {
+          // Temporarily place card to validate
           placeCardInSlot(card, targetIndex);
           dropped = true;
+          // Validate this drop - if wrong, card will be returned to pool
+          validateDropPosition(card, targetIndex);
         }
       }
-    } else if (isSpecial && arrowTarget && arrowTarget.classList.contains('active')) {
-      arrowTarget.classList.add('comm');
-      state.hasInteracted = true;
-      snapToPoolPosition(card);
-      dropped = true;
     }
 
     if (!dropped) {
@@ -708,6 +841,187 @@
     checkCompletion();
   }
 
+  // Validate if a card is in a correct position according to validation rules
+  function validateDropPosition(card, slotIndex) {
+    if (!state.data) return true;
+    
+    const ids = placeholders.map((slot) => slot.dataset.cardId);
+    const cardId = card.dataset.id;
+    const { validationRules = {} } = state.data;
+    const phases = validationRules.phases || [];
+
+    let isValid = true;
+
+    // Find which phase this slot belongs to
+    for (const phase of phases) {
+      const { positions, oneOf, mustBe, mustContainAll, anyOrder, conditional } = phase;
+
+      if (!positions.includes(slotIndex)) continue;
+
+      if (oneOf) {
+        // Position must have one of the allowed values
+        if (!oneOf.includes(cardId)) {
+          isValid = false;
+        }
+      } else if (mustBe) {
+        // Single position must be exact value
+        if (cardId !== mustBe) {
+          isValid = false;
+        }
+      } else if (mustContainAll && anyOrder) {
+        // For anyOrder positions, check if this card is one of the allowed ones
+        if (!mustContainAll.includes(cardId)) {
+          isValid = false;
+        }
+      } else if (conditional) {
+        // Conditional validation based on another position
+        const conditionMet = ids[conditional.if.position] === conditional.if.equals;
+        const rule = conditionMet ? conditional.then : conditional.else;
+        
+        // If we're validating a slot that depends on position 0, and position 0 is not filled yet,
+        // we need to check both possible rules
+        if (ids[conditional.if.position] === '' || ids[conditional.if.position] === undefined) {
+          // Position 0 not filled - check if card is valid in either branch
+          const validInThen = conditional.then.mustContainAll.includes(cardId);
+          const validInElse = conditional.else.mustContainAll.includes(cardId);
+          if (!validInThen && !validInElse) {
+            isValid = false;
+          }
+        } else if (rule.mustContainAll) {
+          // Check if card is in the allowed list for current condition
+          if (!rule.mustContainAll.includes(cardId)) {
+            isValid = false;
+          }
+        }
+      }
+      break; // Found the phase for this slot
+    }
+
+    if (!isValid) {
+      // Wrong position - show feedback
+      showWrongDropFeedback(card, slotIndex);
+    }
+
+    return isValid;
+  }
+
+  function showWrongDropFeedback(card, slotIndex) {
+    const slot = placeholders[slotIndex];
+    
+    // Add red border to slot - will be removed after card animation completes
+    slot.classList.add('wrong-blink');
+
+    // Remove card from slot data immediately
+    removeCardFromSlot(card, slotIndex);
+    
+    // Animate card back to pool
+    animateCardBackToPool(card, () => {
+      // Remove red border after card has returned to pool
+      slot.classList.remove('wrong-blink');
+    });
+
+    // Show toast with random feedback message
+    const feedbackMessages = state.data.feedback.wrongDrop || [
+      "Kisub väheke rappa",
+      "Uups! See läks veidi metsa", 
+      "Mitte päris nii…",
+      "Proovi uuesti!"
+    ];
+    const randomMessage = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
+    showToast(randomMessage);
+  }
+
+  function animateCardBackToPool(card, onComplete) {
+    // Get current position of card in slot
+    const startRect = card.getBoundingClientRect();
+    
+    // Calculate target position in pool (random position avoiding overlap)
+    const padding = 24;
+    const containerRect = cardsContainer.getBoundingClientRect();
+    const containerW = Math.max(containerRect.width, 600);
+    const containerH = Math.max(containerRect.height, 520);
+    const cardW = 180;
+    const cardH = 110;
+    const minDist = 40;
+    
+    // Get existing card positions in pool
+    const placed = [];
+    state.cards.forEach(({ node }) => {
+      if (!node.dataset.slotIndex && node !== card) {
+        const left = parseFloat(node.style.left || 0);
+        const top = parseFloat(node.style.top || 0);
+        placed.push([left, top]);
+      }
+    });
+    
+    // Find random position avoiding overlap
+    let tries = 0;
+    let targetLeft, targetTop, ok;
+    do {
+      targetLeft = Math.random() * (containerW - cardW - 2 * padding) + padding;
+      targetTop = Math.random() * (containerH - cardH - 2 * padding) + padding;
+      ok = placed.every(([x, y]) => {
+        const dx = x - targetLeft;
+        const dy = y - targetTop;
+        return Math.sqrt(dx * dx + dy * dy) > cardW - minDist;
+      });
+      tries++;
+    } while (!ok && tries < 50);
+    
+    // Move card to body for animation
+    card.style.position = 'fixed';
+    card.style.left = `${startRect.left}px`;
+    card.style.top = `${startRect.top}px`;
+    card.style.width = `${startRect.width}px`;
+    card.style.height = `${startRect.height}px`;
+    card.style.margin = '0';
+    card.style.zIndex = '9999';
+    card.style.transition = 'left 0.5s ease-out, top 0.5s ease-out, width 0.5s ease-out, height 0.5s ease-out';
+    document.body.appendChild(card);
+    
+    // Calculate absolute target position
+    const targetX = containerRect.left + targetLeft;
+    const targetY = containerRect.top + targetTop;
+    
+    // Force reflow
+    card.getBoundingClientRect();
+    
+    // Animate to target
+    requestAnimationFrame(() => {
+      card.style.left = `${targetX}px`;
+      card.style.top = `${targetY}px`;
+      card.style.width = '';
+      card.style.height = '';
+    });
+    
+    // After animation, finalize card position in pool
+    setTimeout(() => {
+      card.style.transition = '';
+      card.style.position = 'absolute';
+      card.style.left = `${targetLeft}px`;
+      card.style.top = `${targetTop}px`;
+      card.style.zIndex = '';
+      card.style.margin = '';
+      card.dataset.slotIndex = '';
+      card.dataset.poolLeft = String(targetLeft);
+      card.dataset.poolTop = String(targetTop);
+      cardsContainer.appendChild(card);
+      
+      if (onComplete) onComplete();
+    }, 550);
+  }
+
+  function showToast(message) {
+    feedbackToast.textContent = message;
+    feedbackToast.classList.add('visible');
+    feedbackToast.setAttribute('aria-hidden', 'false');
+    
+    setTimeout(() => {
+      feedbackToast.classList.remove('visible');
+      feedbackToast.setAttribute('aria-hidden', 'true');
+    }, 3500);
+  }
+
   function highlightDropTarget(clientX, clientY, card) {
     clearHoverHighlights();
 
@@ -719,11 +1033,9 @@
       el.classList && el.classList.contains('arrow-indicator')
     );
 
+    // Special card cannot be dropped on arrows anymore - it animates automatically after completion
     if (card.dataset.special === 'true') {
-      if (arrowTarget && arrowTarget.classList.contains('active')) {
-        arrowTarget.classList.add('hover');
-        state.drag.lastHoverArrow = arrowTarget;
-      }
+      // No highlighting for special card
       return;
     }
 
@@ -789,15 +1101,7 @@
 
       if (active) {
         arrow.classList.add('active');
-        // Auto-apply comm class if the card in first slot has autoComm enabled
-        const cardId = first.dataset.cardId;
-        const cardEntry = state.cards.get(cardId);
-        if (cardEntry && cardEntry.element.autoComm && !arrow.classList.contains('comm')) {
-          // Trigger flying animation before adding comm class
-          animateSpecialCardToArrow(arrow, () => {
-            arrow.classList.add('comm');
-          });
-        }
+        // No longer auto-apply comm class - will be done in final animation
       } else {
         arrow.classList.remove('active');
         arrow.classList.remove('comm');
@@ -805,7 +1109,7 @@
     });
   }
 
-  function animateSpecialCardToArrow(arrow, onComplete) {
+  function animateSpecialCardToAllArrows(onComplete) {
     // Find the special card (suhtlus)
     const specialEntry = Array.from(state.cards.values()).find(
       (entry) => entry.element.special
@@ -817,13 +1121,8 @@
 
     const specialCard = specialEntry.node;
     const cardRect = specialCard.getBoundingClientRect();
-    const arrowRect = arrow.getBoundingClientRect();
 
-    // Make original special card blink a few seconds to draw attention
-    specialCard.classList.add('blink');
-    const blinkDuration = 3000; // ms (make it blink for ~3s so multiple 0.6s cycles occur)
-
-    // Create a clone for the animation
+    // First, move special card to center of screen and blink
     const clone = specialCard.cloneNode(true);
     clone.style.position = 'fixed';
     clone.style.left = `${cardRect.left}px`;
@@ -833,51 +1132,94 @@
     clone.style.margin = '0';
     clone.style.zIndex = '9999';
     clone.style.pointerEvents = 'none';
-    // Use explicit transitions for more reliable mobile/portrait behavior
-    clone.style.transition = 'left 1.2s ease-in-out, top 1.2s ease-in-out, transform 1.2s ease-in-out, opacity 1.2s ease-in-out';
+    clone.style.transition = 'left 0.8s ease-in-out, top 0.8s ease-in-out';
     clone.style.transformOrigin = 'center center';
-    clone.style.willChange = 'left, top, transform, opacity';
     document.body.appendChild(clone);
 
-    // Calculate target position (center of arrow)
-    const targetX = arrowRect.left + arrowRect.width / 2 - cardRect.width / 2;
-    const targetY = arrowRect.top + arrowRect.height / 2 - cardRect.height / 2;
+    // Hide original card
+    specialCard.style.visibility = 'hidden';
 
-    // Force reflow to ensure the starting position is registered (avoids instant jumps on some layouts)
-    clone.getBoundingClientRect();
+    // Calculate center of screen
+    const centerX = (window.innerWidth - cardRect.width) / 2;
+    const centerY = (window.innerHeight - cardRect.height) / 2;
 
-    // Start animation shortly after reflow
+    // Move to center
+    requestAnimationFrame(() => {
+      clone.style.left = `${centerX}px`;
+      clone.style.top = `${centerY}px`;
+    });
+
+    // After moving to center, start blinking for 3 seconds
     setTimeout(() => {
-      clone.style.left = `${targetX}px`;
-      clone.style.top = `${targetY}px`;
-      clone.style.transform = 'scale(0.1)';
-      clone.style.opacity = '0.5';
-    }, 20);
+      clone.classList.add('center-blink');
+      
+      // After 3 seconds of blinking, animate to all arrows
+      setTimeout(() => {
+        clone.classList.remove('center-blink');
+        
+        // Get the current position of the centered clone
+        const centeredRect = clone.getBoundingClientRect();
+        
+        // Create clones for each arrow and animate them simultaneously
+        const activeArrows = arrows.filter(arrow => arrow.classList.contains('active'));
+        
+        activeArrows.forEach((arrow, index) => {
+          const arrowRect = arrow.getBoundingClientRect();
+          const arrowClone = clone.cloneNode(true);
+          
+          arrowClone.style.position = 'fixed';
+          arrowClone.style.left = `${centeredRect.left}px`;
+          arrowClone.style.top = `${centeredRect.top}px`;
+          arrowClone.style.width = `${centeredRect.width}px`;
+          arrowClone.style.height = `${centeredRect.height}px`;
+          arrowClone.style.margin = '0';
+          arrowClone.style.zIndex = '9998';
+          arrowClone.style.pointerEvents = 'none';
+          arrowClone.style.transition = 'left 1s ease-in-out, top 1s ease-in-out, transform 1s ease-in-out, opacity 1s ease-in-out';
+          arrowClone.style.transformOrigin = 'center center';
+          arrowClone.style.willChange = 'left, top, transform, opacity';
+          document.body.appendChild(arrowClone);
 
-    // Clean up after animation
-    const cleanup = () => {
-      clone.remove();
-      specialCard.classList.remove('blink');
-      onComplete();
-    };
+          // Calculate target position (center of arrow)
+          const targetX = arrowRect.left + arrowRect.width / 2 - centeredRect.width / 2;
+          const targetY = arrowRect.top + arrowRect.height / 2 - centeredRect.height / 2;
 
-    // Use a deterministic timeout for cleanup: transition duration + pause + small buffer
-    // This avoids flaky `transitionend` timing on some browsers/layouts.
-    const transitionMs = 1200; // matches transition: 1.2s
-    const pauseMs = 500; // keep clone visible at destination
-    const bufferMs = 80; // safety buffer
-    const totalMs = transitionMs + pauseMs + bufferMs;
+          // Force reflow
+          arrowClone.getBoundingClientRect();
 
-    setTimeout(() => {
-      if (clone.parentNode) {
-        cleanup();
-      }
-    }, totalMs);
+          // Animate to arrow with slight delay based on index for visual effect
+          setTimeout(() => {
+            arrowClone.style.left = `${targetX}px`;
+            arrowClone.style.top = `${targetY}px`;
+            arrowClone.style.transform = 'scale(0.15)';
+            arrowClone.style.opacity = '0.6';
+          }, index * 50);
 
-    // Ensure blink stops after a bit
-    setTimeout(() => {
-      specialCard.classList.remove('blink');
-    }, blinkDuration);
+          // Apply comm class to arrow and remove clone after animation
+          setTimeout(() => {
+            arrow.classList.add('comm');
+            arrowClone.remove();
+          }, 1200 + index * 50);
+        });
+
+        // Remove the centered clone
+        clone.remove();
+
+        // Call completion callback after all animations done
+        setTimeout(() => {
+          specialCard.style.visibility = 'visible';
+          onComplete();
+        }, 1500);
+        
+      }, 3000); // 3 seconds of blinking
+    }, 800); // Wait for move to center
+  }
+
+  // Keep old function for backwards compatibility but redirect to new one
+  function animateSpecialCardToArrow(arrow, onComplete) {
+    // This function is no longer used for individual arrows
+    // Kept for backwards compatibility
+    onComplete();
   }
 
   function snapToPoolPosition(card) {
@@ -914,15 +1256,28 @@
 
   function checkCompletion() {
     const allFilled = placeholders.every((slot) => slot.dataset.cardId);
-    if (confirmBtn) confirmBtn.disabled = !allFilled;
+    
+    // Don't show confirm button - we validate each drop now
+    if (confirmBtn) confirmBtn.style.display = 'none';
 
-    if (allFilled && !state.previouslyComplete) {
-      state.previouslyComplete = true;
-      openModal(confirmModal);
+    if (allFilled && !state.gameCompleted) {
+      // All slots are filled - since we validate each drop, if we get here all are correct
+      state.gameCompleted = true;
+      state.lastFeedbackResult = 'correct';
+      
+      // Trigger the final special card animation
+      setTimeout(() => {
+        animateSpecialCardToAllArrows(() => {
+          // After animation completes, send log and show completion message
+          sendLog('confirm');
+          // feedbackMessageEl.textContent = state.data.feedback.correct || 'Correct!';
+          openModal(feedbackModal);
+        });
+      }, 500);
     }
 
     if (!allFilled) {
-      state.previouslyComplete = false;
+      state.gameCompleted = false;
     }
   }
 
@@ -1050,6 +1405,7 @@
         slot.removeChild(card);
         cardsContainer.appendChild(card);
         card.dataset.slotIndex = '';
+        card.style.visibility = 'visible'; // Ensure card is visible
       }
       slot.dataset.cardId = '';
       slot.classList.remove('filled');
@@ -1096,9 +1452,10 @@
     state.hasInteracted = false;
     state.firstInteractionTime = null;
     state.lastFeedbackResult = null;
+    state.gameCompleted = false;
     registerActivity();
-    // After resetting, show the welcome/start screen again
-    showWelcome();
+    // After resetting, show the screensaver
+    showScreensaver();
   }
 
   function registerActivity() {

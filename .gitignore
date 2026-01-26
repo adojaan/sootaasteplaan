@@ -1,0 +1,18 @@
+# Local analysis files
+TIME_CONSUMPTION_ANALYSIS.md
+
+# Log files
+*.log
+game_logs.csv
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.bak

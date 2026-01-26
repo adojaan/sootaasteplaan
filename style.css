@@ -101,7 +101,7 @@ body {
   height: 100%;
   padding: 24px 12px 24px 24px;
   /* background: var(--bg); */
-  background-color: rgba(244,246,251, 0.75);
+  background-color: rgba(244,246,251, 0.4);
   border-right: 2px solid var(--border-color);
   z-index: 0;
   isolation: isolate;
@@ -115,7 +115,7 @@ body {
   width: 75%;
   height: 100%;
   /* background: var(--bg); */
-   background-color: rgba(244,246,251, 0.5);
+   background-color: rgba(244,246,251, 0.2);
   isolation: isolate;
   z-index: 1;
   overflow: hidden;
@@ -623,7 +623,7 @@ img.modalimg {
 
 /* Decorative image in bottom-right of cards area */
 #cards-container::after {
-  content: "";
+  /* content: "";
   position: absolute;
   right: 16px;
   bottom: -30px;
@@ -634,8 +634,8 @@ img.modalimg {
   background-size: contain;
   opacity: 0.95;
   pointer-events: none;
-  z-index: 0;
-  transform: translateZ(0);
+  z-index: -10;
+  transform: translateZ(0); */
 }
 
 /* Ensure cards are painted above the decorative image */
@@ -700,8 +700,119 @@ img.modalimg {
 }
 .welcome-panel .modal-actions { justify-content: center; margin-top: 1rem; }
 
+/* ============ SCREENSAVER ============ */
+.screensaver {
+  position: fixed;
+  inset: 0;
+  background: #1a1a1a;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.screensaver[aria-hidden="true"] {
+  display: none;
+}
+
+.screensaver-title {
+  font-family: 'Regar Demo', Arial, sans-serif;
+  font-size: 5rem;
+  color: #4CAF50;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 2rem;
+  max-width: 90%;
+  position: absolute;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+.screensaver-title.fade-out {
+  opacity: 0;
+}
 
 @media (max-width: 1100px) {
+  .screensaver-title {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .screensaver-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* ============ FEEDBACK TOAST ============ */
+.feedback-toast {
+  position: fixed;
+  top: 50%;
+  right: 37.5%; /* Center of the 75% width pool area */
+  transform: translate(50%, -50%);
+  background: rgba(241, 89, 33, 0.95);
+  color: #fff;
+  padding: 1.25rem 2.5rem;
+  border-radius: 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Bogle', Arial, sans-serif;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.feedback-toast.visible {
+  opacity: 1;
+}
+
+/* Toast positioning for smaller screens where layout is column */
+@media (max-width: 1100px) {
+  .feedback-toast {
+    top: 25%;
+    right: 50%;
+    transform: translate(50%, -50%);
+  }
+}
+
+/* ============ WRONG SLOT INDICATOR ============ */
+.placeholder-slot.wrong-blink {
+  border-color: var(--danger) !important;
+  border-style: solid !important;
+  background: rgba(241, 89, 33, 0.2) !important;
+  animation: slot-wrong-pulse 0.4s ease-in-out infinite;
+}
+
+@keyframes slot-wrong-pulse {
+  0%, 100% {
+    background: rgba(241, 89, 33, 0.15);
+  }
+  50% {
+    background: rgba(241, 89, 33, 0.3);
+  }
+}
+
+/* ============ SPECIAL CARD CENTER ANIMATION ============ */
+.card.special.center-blink {
+  animation: special-center-blink 0.8s ease-in-out infinite;
+}
+
+@keyframes special-center-blink {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+
+/* @media (max-width: 1100px) {
   #cards-container::after {
     right: 12px;
     bottom: 12px;
@@ -717,4 +828,4 @@ img.modalimg {
     width: 140px;
     opacity: 0.8;
   }
-}
+} */

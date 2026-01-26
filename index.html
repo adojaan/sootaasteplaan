@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- Screensaver (initial state before welcome) -->
+    <div id="screensaver" class="screensaver" aria-hidden="false">
+      <h1 id="screensaver-title" class="screensaver-title">Soo taastamise kümme sammu</h1>
+    </div>
+
     <header class="top-bar">
       <h1 class="game-title">Soo taastamise kümme sammu</h1>
       <div class="top-actions">
@@ -14,17 +19,12 @@
       </div>
     </header>
     <!-- Welcome / Intro screen (initial state) -->
-    <div id="welcome-screen" class="welcome-screen" aria-hidden="false">
+    <div id="welcome-screen" class="welcome-screen" aria-hidden="true" style="display: none;">
       <div class="welcome-panel">
-        <h2 class="welcome-subtitle">SISSEJUHATUS</h2>
+        <h2 class="welcome-subtitle">Soo taastamise kümme sammu</h2>
         <div class="welcome-body">
-          <p>Kujuta ette, et elad külas, mis asub soo servas. Enam kui pool sajandit tagasi kaevati sinna kraavid, et juhtida vesi soost ning saada sel moel juurde metsa- ja heinamaad. Nüüd kasvabki soo servas mets, murakaid ja jõhvikaid peab aga minema korjama sügavale sohu, konni pole kevadeti enam kuulda ning kaevud, mida mõned majapidamised kasutavad, jäävad suviti kuivaks. Tuletõrje on paaril korral käinud kustutamas tulekahjusid, kuid kuival turbapinnasel ei taha see töö kuidagi õnnestuda…</p>
-          <p>Külaelanikud on hakanud arutama, kas kuivendatud turbaala asemel võiks uuesti olla soo. Aga kuidas ja mis järjekorras seda kõike korraldada?</p>
-        </div>
-
-        <h3 class="welcome-subtitle juhis">JUHIS</h3>
-        <div class="welcome-body-green">
-          <p>Selles ülesandes on kümme sammu ja neid läbides saaks kuivendatud turbaalast kujuneda taas elujõuline soo. Tegevuste järjekord on aga läinud lootusetult segamini. Milline oleks Sinu meelest mõistlik sammude järjekord? Pane tegevused loogilisse järjekorda. Selles võivad Sind aidata pisut pikemad selgitused iga sammu juures.</p>
+          <p>Kujuta ette, et elad külas, mis asub soo servas. Enam kui pool sajandit tagasi kaevati sinna  kuivenduskraavid, et saada sel moel juurde metsa- ning heinamaad. Nüüdseks ongi osa soost asendunud metsaga, murakaid ja jõhvikaid peab minema otsima kaugemale, konni pole kevadeti enam kuulda ning osad külakaevud jäävad suviti kuivaks. Aeg-ajalt tekib ka põlenguid, mida on kuival turbapinnasel raske kustutada. Külaelanikud on hakanud arutama, kas kuivendatud turbaalast võiks uuesti saada soo… </p>
+          <p>Tutvu kümne sammuga, mida on vaja läbida, et kuivendatud ala saaks taas kujuneda elujõuliseks sooks. Tegevuste järjekord on aga läinud lootusetult segamini. Milline oleks sinu meelest mõistlik sammude järjekord? Selles võivad sind aidata pisut pikemad selgitused iga sammu juures</p>
         </div>
 
         <div class="modal-actions">
@@ -81,14 +81,16 @@
 
     <div id="feedback-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="modal-content">
-        <h2 id="feedback-title">Tulemused</h2>
+        <h2 id="feedback-title">Valmis!</h2>
         <p id="feedback-message"></p>
         <div class="modal-actions">
-          <button class="secondary" data-close="feedback-modal">Sule</button>
           <button id="feedback-restart" class="primary">Alusta uuesti</button>
         </div>
       </div>
     </div>
+
+    <!-- Toast for wrong drop feedback -->
+    <div id="feedback-toast" class="feedback-toast" aria-hidden="true"></div>
 
     <div id="inactivity-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="modal-content">
