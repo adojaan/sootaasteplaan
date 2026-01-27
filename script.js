@@ -9,7 +9,7 @@
   // ============ KIOSK MODE CONFIGURATION ============
   const kioskConfig = {
     enabled: true,  // Set to false to disable kiosk protections
-    backdoorHoldTime: 3000  // Hold info icon for 3 seconds to exit kiosk
+    backdoorHoldTime: 3000  // Hold reset button for 3 seconds to exit kiosk
   };
   // ==================================================
 
@@ -236,7 +236,32 @@
     resetGame();
   });
 
-  document.getElementById('reset-btn').addEventListener('click', () => {
+  // Reset button: click opens reset modal, long-press is secret backdoor to exit kiosk
+  const resetBtn = document.getElementById('reset-btn');
+  let resetBtnBackdoorTimer = null;
+  resetBtn.addEventListener('pointerdown', (e) => {
+    if (kioskConfig.enabled) {
+      resetBtnBackdoorTimer = setTimeout(() => {
+        if (confirm('Väljuda kioskirežiimist? / Exit kiosk mode?')) {
+          // Exit fullscreen
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          }
+          // Open a blank page to allow browser access
+          window.open('about:blank', '_self');
+        }
+      }, kioskConfig.backdoorHoldTime);
+    }
+  });
+  resetBtn.addEventListener('pointerup', () => {
+    if (resetBtnBackdoorTimer) {
+      clearTimeout(resetBtnBackdoorTimer);
+      resetBtnBackdoorTimer = null;
+    }
+  });
+  resetBtn.addEventListener('pointercancel', () => clearTimeout(resetBtnBackdoorTimer));
+  resetBtn.addEventListener('pointerleave', () => clearTimeout(resetBtnBackdoorTimer));
+  resetBtn.addEventListener('click', () => {
     openModal(resetModal);
   });
 
@@ -530,26 +555,6 @@
       infoIcon.alt = 'More information';
       infoIcon.className = 'info-icon';
       card.appendChild(infoIcon);
-
-      // Long-press backdoor for special card's info icon
-      if (element.special && kioskConfig.enabled) {
-        let backdoorTimer = null;
-        infoIcon.addEventListener('pointerdown', (e) => {
-          backdoorTimer = setTimeout(() => {
-            if (confirm('Väljuda kioskirežiimist? / Exit kiosk mode?')) {
-              // Exit fullscreen
-              if (document.fullscreenElement) {
-                document.exitFullscreen().catch(() => {});
-              }
-              // Open a blank page to allow browser access
-              window.open('about:blank', '_self');
-            }
-          }, kioskConfig.backdoorHoldTime);
-        });
-        infoIcon.addEventListener('pointerup', () => clearTimeout(backdoorTimer));
-        infoIcon.addEventListener('pointercancel', () => clearTimeout(backdoorTimer));
-        infoIcon.addEventListener('pointerleave', () => clearTimeout(backdoorTimer));
-      }
 
       card.addEventListener('pointerdown', handlePointerDown);
       card.addEventListener('pointerup', handlePointerUp);
@@ -1533,8 +1538,8 @@
       state.inactivityModalOpen = false;
       // Log abandoned session before reset
       sendLog('inactivity_reset');
-      resetGame();
-      state.inactivityGraceTimer = null;
+      // Hard reload to pick up any git pull changes (fresh CSS, JS, HTML)
+      window.location.reload(true);
     }, 10000);
   }
 

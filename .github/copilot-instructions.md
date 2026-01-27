@@ -56,8 +56,8 @@
   - Position 9: mustBe `"jarelevalve"`
 - **Mistake counting**: 0 mistakes = correct, 1-2 = partial, 3+ = incorrect
 - **Arrows** (`.arrow-indicator`): visible only when both adjacent slots filled. `.comm` class = orange color.
-- **Inactivity timer**: 60s → inactivity modal. 10s more → log + auto-reset.
-- **Kiosk backdoor**: Long-press (3s) on special card's info icon to exit.
+- **Inactivity timer**: 60s → inactivity modal. 10s more → log + hard page reload (picks up git pull changes).
+- **Kiosk backdoor**: Long-press (3s) on reset button ("Alusta uuesti") to exit kiosk mode.
 
 ## Kiosk deployment files
 
@@ -72,7 +72,7 @@ Browser priority: Edge → Chrome → Firefox. Uses separate profile (`%TEMP%\Ki
 
 ## Dev / run / debug
 
-- For development: `python -m http.server 8000` or VS Code Live Server
+- **Development server**: `python -m http.server 8000` (NOT Node.js) or VS Code Live Server
 - For kiosk testing: `start-kiosk-local.bat` (runs local file directly)
 - Debug: browser DevTools → Console. `window.testGame` has helpers:
   - `testGame.testCorrect()` — fill all slots correctly
