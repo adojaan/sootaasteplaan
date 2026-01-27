@@ -159,9 +159,9 @@ body {
 .placeholder-slot {
   border: 2px dashed var(--border-color);
   border-radius: 18px;
-  height: 76px;
+  height: 66px;
   background: rgba(255, 255, 255, 0.9);
-  margin: 0.25rem 0;
+  margin: 0 0;
   position: relative;
   display: flex;
   align-items: center;
@@ -198,11 +198,13 @@ body {
 }
 
 .arrow-indicator {
-  height: 42px;
+  height: 20px;
   position: relative;
+  top: -3px;
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
+  z-index: 100;
 }
 
 .arrow-indicator.active {
@@ -214,7 +216,7 @@ body {
   content: "";
   display: block;
   width: 4px;
-  height: 18px;
+  height: 12px;
   background: var(--primary);
   margin: 0 auto;
   border-radius: 999px;
