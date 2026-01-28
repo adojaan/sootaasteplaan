@@ -241,14 +241,18 @@
   let resetBtnBackdoorTimer = null;
   resetBtn.addEventListener('pointerdown', (e) => {
     if (kioskConfig.enabled) {
-      resetBtnBackdoorTimer = setTimeout(() => {
+      resetBtnBackdoorTimer = setTimeout(async () => {
         if (confirm('Väljuda kioskirežiimist? / Exit kiosk mode?')) {
-          // Exit fullscreen
+          // Exit fullscreen first, then navigate away
           if (document.fullscreenElement) {
-            document.exitFullscreen().catch(() => {});
+            try {
+              await document.exitFullscreen();
+            } catch (_) {}
           }
-          // Open a blank page to allow browser access
-          window.open('about:blank', '_self');
+          // Small delay to ensure fullscreen exit completes
+          setTimeout(() => {
+            window.open('about:blank', '_self');
+          }, 100);
         }
       }, kioskConfig.backdoorHoldTime);
     }
@@ -875,6 +879,30 @@
 
     let isValid = true;
 
+    // Helper: get the conditional phase to check branch commitment
+    const conditionalPhase = phases.find(p => p.conditional);
+    const oneOfPhase = phases.find(p => p.oneOf);
+    
+    // Helper: determine which branch is committed based on cards in conditional positions
+    // excludeSlot: slot to ignore (used when the card is already placed there during validation)
+    function getCommittedBranch(excludeSlot = null) {
+      if (!conditionalPhase || !oneOfPhase) return null;
+      const conditionalPositions = conditionalPhase.positions;
+      const oneOfCards = oneOfPhase.oneOf; // ["tahame_taastada", "mis_on_lugu"]
+      
+      for (const pos of conditionalPositions) {
+        if (pos === excludeSlot) continue; // Skip the slot we're currently validating
+        const cardInPos = ids[pos];
+        if (oneOfCards.includes(cardInPos)) {
+          // One of the "oneOf" cards is in positions 1-4, this commits us to a branch
+          // If "tahame_taastada" is in 1-4, position 0 must be "mis_on_lugu" (else branch)
+          // If "mis_on_lugu" is in 1-4, position 0 must be "tahame_taastada" (then branch)
+          return cardInPos === conditionalPhase.conditional.if.equals ? 'else' : 'then';
+        }
+      }
+      return null; // No commitment yet
+    }
+
     // Find which phase this slot belongs to
     for (const phase of phases) {
       const { positions, oneOf, mustBe, mustContainAll, anyOrder, conditional } = phase;
@@ -885,6 +913,21 @@
         // Position must have one of the allowed values
         if (!oneOf.includes(cardId)) {
           isValid = false;
+        } else {
+          // Also check if we're committed to a specific branch based on cards in slots 1-4
+          // Don't exclude any slot here since we're validating slot 0
+          const committedBranch = getCommittedBranch();
+          if (committedBranch) {
+            // We're committed - only one of the oneOf values is valid now
+            if (conditionalPhase) {
+              const requiredForThen = conditionalPhase.conditional.if.equals; // "tahame_taastada"
+              if (committedBranch === 'then' && cardId !== requiredForThen) {
+                isValid = false;
+              } else if (committedBranch === 'else' && cardId === requiredForThen) {
+                isValid = false;
+              }
+            }
+          }
         }
       } else if (mustBe) {
         // Single position must be exact value
@@ -897,23 +940,52 @@
           isValid = false;
         }
       } else if (conditional) {
-        // Conditional validation based on another position
-        const conditionMet = ids[conditional.if.position] === conditional.if.equals;
-        const rule = conditionMet ? conditional.then : conditional.else;
-        
-        // If we're validating a slot that depends on position 0, and position 0 is not filled yet,
-        // we need to check both possible rules
-        if (ids[conditional.if.position] === '' || ids[conditional.if.position] === undefined) {
-          // Position 0 not filled - check if card is valid in either branch
-          const validInThen = conditional.then.mustContainAll.includes(cardId);
-          const validInElse = conditional.else.mustContainAll.includes(cardId);
-          if (!validInThen && !validInElse) {
+        // IMPORTANT: If placing a oneOf card in slots 1-4, check that another oneOf card isn't already there
+        if (oneOfPhase && oneOfPhase.oneOf.includes(cardId)) {
+          // This card belongs in slot 0, but user is trying to put it in slots 1-4
+          // Check if another oneOf card is already in slots 1-4 (exclude current slot)
+          const committedBranch = getCommittedBranch(slotIndex);
+          if (committedBranch !== null) {
+            // Another oneOf card is already in slots 1-4 - can't place this one here too!
             isValid = false;
           }
-        } else if (rule.mustContainAll) {
-          // Check if card is in the allowed list for current condition
-          if (!rule.mustContainAll.includes(cardId)) {
-            isValid = false;
+        }
+        
+        if (isValid) {
+          // Conditional validation based on another position
+          const conditionMet = ids[conditional.if.position] === conditional.if.equals;
+          const rule = conditionMet ? conditional.then : conditional.else;
+          
+          // If we're validating a slot that depends on position 0, and position 0 is not filled yet,
+          // we need to check what's already in slots 1-4 to determine which branch is valid
+          if (ids[conditional.if.position] === '' || ids[conditional.if.position] === undefined) {
+            // Position 0 not filled - check which branch we might be committed to
+            // Exclude current slot since the card is already placed there
+            const committedBranch = getCommittedBranch(slotIndex);
+            
+            if (committedBranch === 'then') {
+              // Committed to "then" branch - only allow cards from that branch
+              if (!conditional.then.mustContainAll.includes(cardId)) {
+                isValid = false;
+              }
+            } else if (committedBranch === 'else') {
+              // Committed to "else" branch - only allow cards from that branch
+              if (!conditional.else.mustContainAll.includes(cardId)) {
+                isValid = false;
+              }
+            } else {
+              // Not committed yet - allow cards from either branch
+              const validInThen = conditional.then.mustContainAll.includes(cardId);
+              const validInElse = conditional.else.mustContainAll.includes(cardId);
+              if (!validInThen && !validInElse) {
+                isValid = false;
+              }
+            }
+          } else if (rule.mustContainAll) {
+            // Check if card is in the allowed list for current condition
+            if (!rule.mustContainAll.includes(cardId)) {
+              isValid = false;
+            }
           }
         }
       }
