@@ -12,7 +12,7 @@
 
 - Purpose: a drag-and-drop ordering game for bog restoration process steps (currently 10 slots + 1 special card). Built as a static single-page app (vanilla JS, no frameworks). Core files: `index.html`, `style.css`, `script.js`.
 - Runtime: client-side JS. Game data is embedded inline in `script.js` (no external JSON fetch).
-- Target: Edge/Chrome/Firefox desktop with touch and mouse support. Must work **offline** (all assets local, no CDN dependencies except Chart.js in statistika.php).
+- Target: Edge/Chrome/Firefox desktop with touch and mouse support. Must work **offline** (all assets local, no CDN dependencies except Chart.js in statistika.php and dropstat.php).
 - Deployment: Windows kiosk mode via `start-kiosk.bat` or `start-kiosk-local.bat`.
 
 ## Big-picture architecture
@@ -21,7 +21,7 @@
 - Data-driven: `gameData` object in `script.js` contains `elements` (cards), `validationRules` (phase-based), and `feedback`. Changes to game content and scoring are made there.
 - Custom drag/drop: Uses **Pointer Events API** (not HTML5 drag/drop) for cross-device compatibility (mouse + touch). See `handlePointerDown`, `handlePointerMove`, `handlePointerUp` in `script.js`.
 - Kiosk mode: `kioskConfig` in `script.js` controls right-click blocking, text selection prevention, and backdoor exit (long-press special card info icon).
-- Logging: `loggingConfig` in `script.js` sends session data to `log.php` on confirm or inactivity reset.
+- Logging: `loggingConfig` in `script.js` sends session data to `log.php` and detailed drop data to `droplog.php` on confirm or inactivity reset.
 
 ## Key files and hot spots to edit
 
@@ -29,8 +29,10 @@
   - `gameData.elements`: card definitions (id, title, subtitle, info, special, autoComm)
   - `gameData.validationRules.phases`: phase-based validation logic
   - `kioskConfig`: kiosk mode settings
-  - `loggingConfig`: remote logging endpoint
+  - `loggingConfig`: remote logging endpoints (log.php + droplog.php)
+  - `state.dropLog`, `state.totalDrops`, etc.: drop tracking for statistics
   - Drag/drop: handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, finalizeDrop
+  - Drop logging: logDrop(), sendDropLog()
   - Completion/evaluation: checkCompletion(), evaluateSequence()
   - Auto-comm animation: animateSpecialCardToArrow()
 - `style.css` — `.card.special` has inline SVG background for arrow shape
@@ -83,8 +85,11 @@ Browser priority: Edge → Chrome → Firefox. Uses separate profile (`%TEMP%\Ki
 ## Server-side files
 
 - `log.php` — receives POST with session data, appends to `game_logs.csv`
-- `statistika.php` — reads CSV, shows charts (pie, line, bar) and 10×10 heatmap
-- CSV format: datetime, ip, trigger, feedback_result, slot_ids (semicolon-separated), usage_time_seconds
+- `statistika.php` — reads CSV, shows charts (pie, line, bar) and 10×10 heatmap (legacy)
+- `droplog.php` — receives POST with detailed drop data, appends to `drop_logs.csv`
+- `dropstat.php` — detailed drop statistics: pie (finalized/abandoned), drop count distribution table, time dynamics, card×slot cross table, problematic cards/slots charts
+- Legacy CSV format (game_logs.csv): datetime, ip, trigger, feedback_result, slot_ids (semicolon-separated), usage_time_seconds
+- New CSV format (drop_logs.csv): datetime, ip, trigger, total_drops, correct_drops, incorrect_drops, failed_drops, drops (JSON array), usage_time_seconds
 
 ## Notes for AI agents
 
@@ -93,3 +98,5 @@ Browser priority: Edge → Chrome → Firefox. Uses separate profile (`%TEMP%\Ki
 - Preserve kiosk/logging config at top of script.js when editing
 - Kiosk scripts support Edge, Chrome, Firefox — test accordingly
 - Statistics page uses Chart.js from CDN (only exception to offline-first rule)
+- Drop tracking: every drop is logged with {card, slot, result, fromSlot} - "fail" means dropped in placeholder column but missed slot
+- Two logging systems: legacy (log.php/statistika.php) and new drop-based (droplog.php/dropstat.php)
