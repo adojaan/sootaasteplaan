@@ -199,7 +199,11 @@
 
   document.getElementById('confirm-order').addEventListener('click', () => {
     closeModal(confirmModal);
-    // No longer used for evaluation - game now evaluates each drop
+    // Submit statistics and show the communication modal
+    sendLog('confirm');
+    showCompletionModalAndAnimateArrows(() => {
+      // Callback no longer used - modal stays open until button click
+    });
   });
 
   document
@@ -1370,12 +1374,10 @@
       state.gameCompleted = true;
       state.lastFeedbackResult = 'correct';
       
-      // Trigger the completion modal (communication card info)
-      // Statistics will be sent when user clicks "Tagasi algusse" or on inactivity reset
+      // Show the "Valmis!" confirm modal first, let user review their order
+      // Statistics will be sent when user clicks "Kinnita" button
       setTimeout(() => {
-        animateSpecialCardToAllArrows(() => {
-          // Callback no longer used - modal stays open until button click
-        });
+        openModal(confirmModal);
       }, 500);
     }
 
@@ -1495,10 +1497,9 @@
   }
 
   function resetGame() {
-    // Send statistics if game was completed (completion modal was open)
-    if (state.completionModalOpen) {
-      sendLog('confirm');
-    }
+    // Stats are now sent when user clicks "Kinnita" button, not here
+    // Only send on inactivity reset if game was completed but not yet confirmed
+    // (This case is handled by inactivity modal logic, not here)
     
     closeModal(confirmModal);
     closeModal(feedbackModal);
