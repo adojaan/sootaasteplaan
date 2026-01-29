@@ -2,7 +2,8 @@
   // ============ LOGGING CONFIGURATION ============
   const loggingConfig = {
     enabled: true,  // Set to false to disable logging
-    endpoint: 'https://sootaasteplaan.metsamang.natmuseum.ut.ee/log.php'  // URL of your PHP logging script
+    endpoint: 'https://sootaasteplaan.metsamang.natmuseum.ut.ee/log.php',  // URL of your PHP logging script (legacy)
+    dropLogEndpoint: 'https://sootaasteplaan.metsamang.natmuseum.ut.ee/droplog.php'  // URL for new drop logging
   };
   // ================================================
 
@@ -174,7 +175,13 @@
     lastFeedbackResult: null,
     screensaverInterval: null,
     gameCompleted: false,
-    welcomeInactivityTimer: null
+    welcomeInactivityTimer: null,
+    // Drop tracking for statistics
+    dropLog: [],         // Array of {card, slot, result, fromSlot} objects
+    totalDrops: 0,       // All drop attempts on slots (correct + incorrect)
+    correctDrops: 0,     // Drops that were validated as correct
+    incorrectDrops: 0,   // Drops that were validated as incorrect
+    failedDrops: 0       // Drops in placeholder column that missed slots
   };
 
   const infoModal = document.getElementById('info-modal');
@@ -201,6 +208,7 @@
     closeModal(confirmModal);
     // Submit statistics and show the communication modal
     sendLog('confirm');
+    sendDropLog('confirm');
     showCompletionModalAndAnimateArrows(() => {
       // Callback no longer used - modal stays open until button click
     });
@@ -473,6 +481,8 @@
       ];
       correctOrder.forEach((id, index) => {
         window.testGame.placeCard(id, index);
+        // Also log the drop for testing
+        logDrop(id, index, 'correct', null);
       });
       // Trigger completion check after all cards placed
       checkCompletion();
@@ -486,6 +496,7 @@
       animateSpecialCardToAllArrows(() => {
         console.log('Final animation complete');
         sendLog('confirm');
+        sendDropLog('confirm');
         // feedbackMessageEl.textContent = state.data.feedback.correct || 'Correct!';
         openModal(feedbackModal);
       });
@@ -796,6 +807,7 @@
   function finalizeDrop(clientX, clientY) {
     const { card, originSlotIndex } = state.drag;
     const isSpecial = card.dataset.special === 'true';
+    const cardId = card.dataset.id;
 
     // Determine target at the moment of drop
     const path = document.elementsFromPoint(clientX, clientY);
@@ -826,16 +838,17 @@
             placeCardInSlot(card, targetIndex);
             placeCardInSlot(occupant, originSlotIndex);
             dropped = true;
-            // Validate both positions after swap
-            validateDropPosition(card, targetIndex);
-            validateDropPosition(occupant, originSlotIndex);
+            // Validate both positions after swap - tracking happens inside validateDropPosition
+            validateDropPosition(card, targetIndex, originSlotIndex);
+            validateDropPosition(occupant, originSlotIndex, targetIndex);
           }
         } else {
           // Temporarily place card to validate
           placeCardInSlot(card, targetIndex);
           dropped = true;
           // Validate this drop - if wrong, card will be returned to pool
-          validateDropPosition(card, targetIndex);
+          // Tracking happens inside validateDropPosition
+          validateDropPosition(card, targetIndex, originSlotIndex);
         }
       }
     }
@@ -849,10 +862,13 @@
         clientY >= placeholderRect.top &&
         clientY <= placeholderRect.bottom
       ) {
-        // Dropped in left column but not on valid slot/arrow - move to pool with random position
+        // Dropped in left column but not on valid slot/arrow - this is a FAILED drop
+        // Log the failed drop attempt
+        logDrop(cardId, null, 'fail', originSlotIndex);
         returnCardToPool(card);
       } else {
         // Dropped elsewhere (pool or outside), snap to previous pool position
+        // This is not a failed drop - user just moved card within the pool
         storePoolPosition(card);
       }
     }
@@ -873,7 +889,8 @@
   }
 
   // Validate if a card is in a correct position according to validation rules
-  function validateDropPosition(card, slotIndex) {
+  // fromSlot: the slot the card came from (null if from pool)
+  function validateDropPosition(card, slotIndex, fromSlot = null) {
     if (!state.data) return true;
     
     const ids = placeholders.map((slot) => slot.dataset.cardId);
@@ -996,12 +1013,38 @@
       break; // Found the phase for this slot
     }
 
+    // Log the drop attempt (correct or incorrect)
+    const result = isValid ? 'correct' : 'incorrect';
+    logDrop(cardId, slotIndex, result, fromSlot);
+
     if (!isValid) {
       // Wrong position - show feedback
       showWrongDropFeedback(card, slotIndex);
     }
 
     return isValid;
+  }
+
+  // Log a drop attempt for statistics
+  function logDrop(cardId, slot, result, fromSlot) {
+    // Track the drop
+    state.dropLog.push({
+      card: cardId,
+      slot: slot,
+      result: result,
+      fromSlot: fromSlot
+    });
+    
+    // Update counters
+    if (result === 'correct') {
+      state.totalDrops++;
+      state.correctDrops++;
+    } else if (result === 'incorrect') {
+      state.totalDrops++;
+      state.incorrectDrops++;
+    } else if (result === 'fail') {
+      state.failedDrops++;
+    }
   }
 
   function showWrongDropFeedback(card, slotIndex) {
@@ -1455,6 +1498,7 @@
     // Store result and send log
     state.lastFeedbackResult = result;
     sendLog('confirm');
+    sendDropLog('confirm');
   }
 
   function openInfoModal(element) {
@@ -1578,6 +1622,12 @@
     state.firstInteractionTime = null;
     state.lastFeedbackResult = null;
     state.gameCompleted = false;
+    // Reset drop tracking for new session
+    state.dropLog = [];
+    state.totalDrops = 0;
+    state.correctDrops = 0;
+    state.incorrectDrops = 0;
+    state.failedDrops = 0;
     registerActivity();
     // After resetting, show the screensaver
     showScreensaver();
@@ -1611,6 +1661,7 @@
       state.inactivityModalOpen = false;
       // Log abandoned session before reset
       sendLog('inactivity_reset');
+      sendDropLog('inactivity_reset');
       // Hard reload to pick up any git pull changes (fresh CSS, JS, HTML)
       window.location.reload(true);
     }, 10000);
@@ -1660,7 +1711,8 @@
   initKioskProtections();
   // ================================================
 
-  // ============ LOGGING FUNCTION ============
+  // ============ LOGGING FUNCTIONS ============
+  // Legacy logging function (for old statistics)
   function sendLog(trigger) {
     if (!loggingConfig.enabled) return;
     if (!navigator.onLine) return;
@@ -1683,6 +1735,39 @@
 
     // Fire and forget - don't wait for response, don't show errors
     fetch(loggingConfig.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true  // Ensure request completes even if page unloads
+    }).catch(() => {
+      // Silently ignore any errors
+    });
+  }
+
+  // New drop logging function (for detailed drop statistics)
+  function sendDropLog(trigger) {
+    if (!loggingConfig.enabled) return;
+    if (!navigator.onLine) return;
+    if (!state.hasInteracted) return;
+
+    const now = Date.now();
+    const usageTimeSeconds = state.firstInteractionTime 
+      ? Math.round((now - state.firstInteractionTime) / 1000)
+      : 0;
+
+    const payload = {
+      datetime: new Date().toISOString(),
+      trigger: trigger,  // 'confirm' or 'inactivity_reset'
+      total_drops: state.totalDrops,
+      correct_drops: state.correctDrops,
+      incorrect_drops: state.incorrectDrops,
+      failed_drops: state.failedDrops,
+      drops: state.dropLog,  // Array of {card, slot, result, fromSlot}
+      usage_time_seconds: usageTimeSeconds
+    };
+
+    // Fire and forget - don't wait for response, don't show errors
+    fetch(loggingConfig.dropLogEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
