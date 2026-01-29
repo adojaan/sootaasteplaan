@@ -55,7 +55,7 @@
     },
     {
       "id": "suhtlus",
-      "title": "Ära unusta mõttevahetust!",
+      "title": "Aga ära unusta ka mõttevahetust!",
       "subtitle": "Suhelge ja tehke koostööd erinevate huvigruppidega, keda taastamistööd vahetult mõjutavad.",
       "info": "<img align='right' src='assets/images/6v1.jpg' class='modalimg'><p>Taastamistööde juures tuleb arvestada paljude huvigruppide kogemuste, teadmiste ning arvamustega. Kaasamiseks on palju erinevaid viise – alates koosolekutest, küsitlusuuringutest, üks-ühele vestluste ja matkadeni, õppepäevadest talguteni, seminaridest veebihääletusteni. Isegi kui kõik ei ole taastamise poolt, aitab suhtlemine välja selgitada erinevaid soove ja vajadusi, millega taastamistöödel arvestada, näiteks millised kraavid, teed ja kohad maastikul on eriliselt olulised ning mille senine kasutusviis peaks säilima. Oluline on pidev suhtlus erinevate osapooltega kogu taastamistegevuse jooksul. </p>",
       "special": true
