@@ -255,16 +255,27 @@
     if (kioskConfig.enabled) {
       resetBtnBackdoorTimer = setTimeout(async () => {
         if (confirm('Väljuda kioskirežiimist? / Exit kiosk mode?')) {
-          // Exit fullscreen first, then navigate away
+          // Exit fullscreen first
           if (document.fullscreenElement) {
             try {
               await document.exitFullscreen();
             } catch (_) {}
           }
-          // Small delay to ensure fullscreen exit completes
+          // Force window resize to restore windowed mode (helps Edge kiosk)
+          try {
+            // Resize window to smaller size to force out of maximized state
+            window.resizeTo(1024, 768);
+            window.moveTo(100, 100);
+          } catch (_) {}
+          // Small delay to ensure fullscreen exit completes, then close
           setTimeout(() => {
-            window.open('about:blank', '_self');
-          }, 100);
+            // Try window.close() first (works if window was opened by script)
+            try {
+              window.close();
+            } catch (_) {}
+            // Fallback: navigate to blank page
+            window.location.href = 'about:blank';
+          }, 200);
         }
       }, kioskConfig.backdoorHoldTime);
     }
