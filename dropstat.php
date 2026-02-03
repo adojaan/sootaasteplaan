@@ -562,7 +562,6 @@ arsort($cardIncorrectTotal);
         
         const percentDataFinalized = [];
         const percentDataAbandoned = [];
-        const countData = [];
         const failedAvgData = [];
         
         filteredDates.forEach(date => {
@@ -570,7 +569,6 @@ arsort($cardIncorrectTotal);
             const total = day.total || 1;
             percentDataFinalized.push(Math.round(day.finalized / total * 100));
             percentDataAbandoned.push(Math.round(day.abandoned / total * 100));
-            countData.push(total);
             // Average failed drops per session for this day
             const avgFailed = day.sessions_count > 0 ? (day.failed_drops / day.sessions_count).toFixed(1) : 0;
             failedAvgData.push(parseFloat(avgFailed));
@@ -598,24 +596,44 @@ arsort($cardIncorrectTotal);
             }
         });
         
-        // Count chart
+        // Count chart - stacked bar with finalized and abandoned
+        const countDataFinalized = [];
+        const countDataAbandoned = [];
+        filteredDates.forEach(date => {
+            const day = dailyData[date];
+            countDataFinalized.push(day.finalized || 0);
+            countDataAbandoned.push(day.abandoned || 0);
+        });
+        
         countChart = new Chart(document.getElementById('countChart'), {
             type: 'bar',
             data: {
                 labels: chartLabels,
-                datasets: [{
-                    label: 'Sessioonid',
-                    data: countData,
-                    backgroundColor: 'rgba(63, 81, 181, 0.7)',
-                    borderColor: 'rgba(63, 81, 181, 1)',
-                    borderWidth: 1
-                }]
+                datasets: [
+                    {
+                        label: 'Lõpetatud',
+                        data: countDataFinalized,
+                        backgroundColor: colors.finalized,
+                        borderColor: colors.finalized.replace('0.8', '1'),
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Katkestatud',
+                        data: countDataAbandoned,
+                        backgroundColor: colors.abandoned,
+                        borderColor: colors.abandoned.replace('0.8', '1'),
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, title: { display: true, text: 'Arv' } } },
-                plugins: { legend: { display: false } }
+                scales: { 
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Arv' } } 
+                },
+                plugins: { legend: { position: 'bottom' } }
             }
         });
         
